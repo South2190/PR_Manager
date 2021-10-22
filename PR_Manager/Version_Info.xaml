@@ -1,0 +1,15 @@
+﻿<Window x:Class="PR_Manager.Version_Info"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        FontFamily="Meiryo"
+        Title="バージョン情報" Height="200" Width="290" ResizeMode="NoResize">
+    <Grid>
+        <TextBlock Text="PR_Manager" FontSize="20" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="バージョン　Beta3.0.210828" FontSize="15" HorizontalAlignment="Left" Margin="30,50,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="製作者　　　SHELL" FontSize="15" HorizontalAlignment="Left" Margin="30,70,0,0" VerticalAlignment="Top"/>
+        <Button Name="OKButton" Content="OK" HorizontalAlignment="Left" Margin="180,120,0,0" VerticalAlignment="Top" Width="70" Click="Close_Popup"/>
+    </Grid>
+</Window>

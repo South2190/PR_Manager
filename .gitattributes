@@ -1,9 +1,7 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
-* linguist-vendored
-*.cs linguist-vendored=false
-*.xaml linguist-vendored=false
+* text=auto
 
 ###############################################################################
 # Set default behavior for command prompt diff.

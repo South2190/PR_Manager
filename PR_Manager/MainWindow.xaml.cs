@@ -41,16 +41,19 @@ namespace PR_Manager
         /// </summary>
         private void Setup()
         {
+            // 接続されているモニタ数だけコンボボックスに選択肢を追加
             for (int i = 1; i <= Screen.AllScreens.Length; i++)
             {
-                _ = selMonitor.Items.Add(i);    // 接続されているモニタ数だけコンボボックスに選択肢を追加
+                _ = selMonitor.Items.Add(i);
             }
 
-            selMonitor.SelectedIndex = 0;   // 仮の初期値
+            // 仮の初期値
+            selMonitor.SelectedIndex = 0;
 
+            // シングルモニタの場合コンボボックスを無効化
             if (Screen.AllScreens.Length <= 1)
             {
-                selMonitor.IsEnabled = false;   // シングルモニタの場合コンボボックスを無効化
+                selMonitor.IsEnabled = false;
             }
 
             LoadKey();
@@ -63,16 +66,19 @@ namespace PR_Manager
         {
             RegistryKey Load = Registry.CurrentUser.OpenSubKey(@"Software\Cygames\PrincessConnectReDive");
 
-            if (Load == null)       // キーが見つからなかった場合は中断
+            // キーが見つからなかった場合は中断
+            if (Load == null)
             {
+                // ボタンを無効化
                 startButton.IsEnabled = false;
-                applyButton.IsEnabled = false;      // ボタンを無効化
+                applyButton.IsEnabled = false;
                 _ = System.Windows.MessageBox.Show("ターゲットキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
+            // ボタンを有効化
             startButton.IsEnabled = true;
-            applyButton.IsEnabled = true;      // ボタンを有効化
+            applyButton.IsEnabled = true;
 
             // レジストリから現在の設定を取得
             bool loadResult = true;
@@ -95,17 +101,24 @@ namespace PR_Manager
             // モード設定の反映
             switch (fullScreen)
             {
-                case 1:     // フルスクリーン
+                // フルスクリーン
+                case 1:
                     ModeW.IsChecked = false;
                     ModeF.IsChecked = true;
-                    UseNative.IsEnabled = true;     // Nativeチェックボックスを有効化
+
+                    // Nativeチェックボックスを有効化
+                    UseNative.IsEnabled = true;
                     break;
-                case 3:     // ウインドウ
+                // ウインドウ
+                case 3:
                     ModeW.IsChecked = true;
                     ModeF.IsChecked = false;
-                    UseNative.IsEnabled = false;    // Nativeチェックボックスを無効化
+
+                    // Nativeチェックボックスを無効化
+                    UseNative.IsEnabled = false;
                     break;
-                default:    // 例外
+                // 例外
+                default:
                     loadResult = false;
                     break;
             }
@@ -119,7 +132,9 @@ namespace PR_Manager
                 case 1:
                     UseNative.IsChecked = true;
                     break;
-                default:    // 例外
+
+                // 例外
+                default:
                     loadResult = false;
                     break;
             }
@@ -129,7 +144,8 @@ namespace PR_Manager
             {
                 selMonitor.SelectedIndex = chooseMonitor;
             }
-            else        // 例外
+            // 例外
+            else
             {
                 loadResult = false;
             }
@@ -154,12 +170,14 @@ namespace PR_Manager
             convertCheck = int.TryParse(WidthBox.Text, out intWidth);
             convertCheck &= int.TryParse(HeightBox.Text, out intHeight);
 
-            if (intWidth < 0 || intHeight < 0)      // 数値が負数の場合falseを返す
+            // 数値が負数の場合falseを返す
+            if (intWidth < 0 || intHeight < 0)
             {
                 convertCheck = false;
             }
 
-            if (!convertCheck)      // 変数がfalseの場合中断
+            // 変数がfalseの場合中断
+            if (!convertCheck)
             {
                 _ = System.Windows.MessageBox.Show("入力値が不正です。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
@@ -179,28 +197,34 @@ namespace PR_Manager
         private bool xmlVerify(string XmlFilePath)
         {
             bool Result = false;
-            if (File.Exists(XmlFilePath))       // XMLファイルが存在する場合
+            // XMLファイルが存在する場合
+            if (File.Exists(XmlFilePath))
             {
-                StreamReader xmlNullJudge = new StreamReader(XmlFilePath);      // XMLファイルの内容を取得
+                // XMLファイルの内容を取得
+                StreamReader xmlNullJudge = new StreamReader(XmlFilePath);
                 string line;
                 while ((line = xmlNullJudge.ReadLine()) != null)
                 {
-                    if (line.IndexOf(@"<") > 0 && line.IndexOf(@">") > 0)       // いずれかの行にタグが存在する場合
+                    // いずれかの行にタグが存在する場合
+                    if (line.IndexOf(@"<") > 0 && line.IndexOf(@">") > 0)
                     {
-                        Result = true;      // 値をTrueにする
+                        Result = true;
                     }
                 }
                 xmlNullJudge.Close();
             }
 
-            if (Result)     // タグが存在した場合のみに実行
+            // タグが存在した場合のみに実行
+            if (Result)
             {
                 XmlDocument NodeSearch = new XmlDocument();
                 NodeSearch.Load(XmlFilePath);
-                XmlNodeList manyConfig = NodeSearch.SelectNodes(@"/config");        // "config"タグを検索
-                if (manyConfig.Count != 1)      // タグが1つ以外の場合
+                // "config"タグを検索
+                XmlNodeList manyConfig = NodeSearch.SelectNodes(@"/config");
+                // タグが1つ以外の場合
+                if (manyConfig.Count != 1)
                 {
-                    Result = false;     // 値をFalseにする
+                    Result = false;
                 }
             }
 
@@ -214,15 +238,17 @@ namespace PR_Manager
         /// <param name="e"></param>
         private void ExportConfig(object sender, RoutedEventArgs e)
         {
-            if (!Load_Form())   // 変数の値を更新
+            // 変数の値を更新し、エラーが返された場合中断
+            if (!Load_Form())
             {
-                return;     // エラーが返された場合中断
+                return;
             }
 
             // ユーザーにファイル名を確認する
             inputBox AskName = new inputBox("プリセット名を入力してください", "PR_Manager");
             bool? select = AskName.ShowDialog();
-            if (select == false || select == null)      // キャンセルが選択された場合中断
+            // キャンセルが選択された場合中断
+            if (select == false || select == null)
             {
                 return;
             }
@@ -285,9 +311,10 @@ namespace PR_Manager
         /// </summary>
         private void Rewrite_Reg(object sender, RoutedEventArgs e)
         {
-            if (!Load_Form())   // 変数の値を更新
+            // 変数の値を更新し、エラーが返された場合中断
+            if (!Load_Form())
             {
-                return;     // エラーが返された場合中断
+                return;
             }
 
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Cygames\PrincessConnectReDive", true);
@@ -300,27 +327,49 @@ namespace PR_Manager
             _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Asterisk);
         }
 
-        private void LoadSettings(object sender, RoutedEventArgs e)     // Loadkey()トリガー
+        /// <summary>
+        /// Loadkey()トリガー
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LoadSettings(object sender, RoutedEventArgs e)
         {
             LoadKey();
         }
 
-        private void Version_Info(object sender, RoutedEventArgs e)     // バージョン情報の表示
+        /// <summary>
+        /// バージョン情報の表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Version_Info(object sender, RoutedEventArgs e)
         {
             Version_Info infoWindow = new Version_Info();
             _ = infoWindow.ShowDialog();
         }
 
-        private void WindowRadio_Checked(object sender, RoutedEventArgs e)      //「ウインドウ」ラジオボタンが選択された場合
+        /// <summary>
+        /// 「ウインドウ」ラジオボタンが選択された場合の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WindowRadio_Checked(object sender, RoutedEventArgs e)
         {
             fullScreen = 3;
-            UseNative.IsEnabled = false;    // Nativeチェックボックスを無効化
+            // Nativeチェックボックスを無効化
+            UseNative.IsEnabled = false;
         }
 
-        private void FullscreenRadio_Checked(object sender, RoutedEventArgs e)  //「フルスクリーン」ラジオボタンが選択された場合
+        /// <summary>
+        /// 「フルスクリーン」ラジオボタンが選択された場合の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FullscreenRadio_Checked(object sender, RoutedEventArgs e)
         {
             fullScreen = 1;
-            UseNative.IsEnabled = true;     // Nativeチェックボックスを有効化
+            // Nativeチェックボックスを有効化
+            UseNative.IsEnabled = true;
         }
 
         /// <summary>
@@ -333,7 +382,12 @@ namespace PR_Manager
             _ = Process.Start("explorer", "dmmgameplayer://priconner/cl/general/priconner");
         }
 
-        private void This_Exit(object sender, RoutedEventArgs e)    // ツールの終了
+        /// <summary>
+        /// ツールを終了します
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void This_Exit(object sender, RoutedEventArgs e)
         {
             Close();
         }

@@ -2,7 +2,7 @@
 DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじれるツール。
 
 ## ダウンロード
-- [Beta3.1.211029](https://github.com/South2190/PR_Manager/releases/download/Beta3.1.211029/PR_Manager.exe)
+- [PR_Manager.exe](https://github.com/South2190/PR_Manager/releases/download/Beta3.1.211029/PR_Manager.exe)
 - [Releases](https://github.com/South2190/PR_Manager/releases)
 
 ## 注意事項

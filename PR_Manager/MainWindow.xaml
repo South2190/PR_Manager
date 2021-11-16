@@ -9,7 +9,7 @@
     <Grid>
         <Menu HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
             <MenuItem Header="インポート(_I)">
-                <MenuItem Header="現在の設定をレジストリから読み込む(_L)" Click="LoadSettings"/>
+                <MenuItem Header="現在の状態を再読み込み(_U)" Click="LoadSettings"/>
             </MenuItem>
             <MenuItem Header="エクスポート(_E)">
                 <MenuItem Header="現在の入力内容をプリセットに保存(_P)..." Click="ExportConfig"/>
@@ -47,7 +47,7 @@
         <GroupBox Header="モニター選択" HorizontalAlignment="Left" Height="100" Margin="155,60,0,0" VerticalAlignment="Top" Width="100">
             <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="40" ToolTip="起動時にゲームを表示するモニターを選択します" RenderTransformOrigin="-0.15,-0.12"/>
         </GroupBox>
-        <Button Name="startButton" Content="プリコネRを起動" HorizontalAlignment="Left" Margin="30,175,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" ToolTip="ゲームを起動します"/>
+        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,175,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" ToolTip="ゲームを起動します"/>
         <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,175,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="Rewrite_Reg" ToolTip="現在の入力内容をレジストリに書き込みます"/>
     </Grid>
 </Window>

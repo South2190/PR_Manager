@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -21,11 +23,14 @@ namespace PR_Manager
         public int fullScreen;
         public int chooseMonitor;
         public int allowNative;
+        public string pName = "PR_Manager";
+        public string appName = "PrincessConnectReDive";
         private bool flg = true;
 
         public MainWindow()
         {
             InitializeComponent();
+
             Activated += (s, e) =>
             {
                 if (flg)
@@ -56,7 +61,24 @@ namespace PR_Manager
                 selMonitor.IsEnabled = false;
             }
 
+            // タイマーの宣言
+            Timer timer = new Timer();
+            timer.Tick += new EventHandler(TickHandler);
+            timer.Interval = 1000/* ms */;
+            timer.Start();
+
             LoadKey();
+            ChangeButton();
+        }
+
+        /// <summary>
+        /// 一定時間毎にこの関数内のプログラムを実行します。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TickHandler(object sender, EventArgs e)
+        {
+            ChangeButton();
         }
 
         /// <summary>
@@ -72,7 +94,7 @@ namespace PR_Manager
                 // ボタンを無効化
                 startButton.IsEnabled = false;
                 applyButton.IsEnabled = false;
-                _ = System.Windows.MessageBox.Show("ターゲットキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("ターゲットキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", pName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -90,7 +112,7 @@ namespace PR_Manager
                 allowNative = (int)Load.GetValue("Screenmanager Resolution Use Native_h1405027254");
                 chooseMonitor = (int)Load.GetValue("UnitySelectMonitor_h17969598");
             }
-            catch (System.NullReferenceException)
+            catch (NullReferenceException)
             {
                 loadResult = false;
             }
@@ -153,7 +175,23 @@ namespace PR_Manager
             // 例外が発生した場合警告を表示
             if (!loadResult)
             {
-                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", pName, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+        }
+
+        /// <summary>
+        /// プリコネRのプロセスの存在有無別でボタンの表示と動作を切り替えます。
+        /// </summary>
+        private void ChangeButton()
+        {
+            // プリコネRが起動しているかどうかの判定
+            if (Process.GetProcessesByName(appName).Length > 0)
+            {
+                startButton.Content = "プリコネRを強制終了";
+            }
+            else
+            {
+                startButton.Content = "プリコネRを起動";
             }
         }
 
@@ -179,7 +217,7 @@ namespace PR_Manager
             // 変数がfalseの場合中断
             if (!convertCheck)
             {
-                _ = System.Windows.MessageBox.Show("入力値が不正です。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("解像度の入力値が不正です。正しく入力したか確認してください。\n\n・半角数字のみが入力されているか\n・正の整数が入力されているか", pName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -194,7 +232,7 @@ namespace PR_Manager
         /// <returns>
         /// 正常な場合はTrue、異常な場合はFalseを返します
         /// </returns>
-        private bool xmlVerify(string XmlFilePath)
+        private bool XmlVerify(string XmlFilePath)
         {
             bool Result = false;
             // XMLファイルが存在する場合
@@ -245,7 +283,7 @@ namespace PR_Manager
             }
 
             // ユーザーにファイル名を確認する
-            inputBox AskName = new inputBox("プリセット名を入力してください", "PR_Manager");
+            inputBox AskName = new inputBox("プリセット名を入力してください", pName);
             bool? select = AskName.ShowDialog();
             // キャンセルが選択された場合中断
             if (select == false || select == null)
@@ -254,8 +292,8 @@ namespace PR_Manager
             }
 
             // XML出力ディレクトリ設定
-            string xmlAddress = System.Environment.CurrentDirectory + @"\config.xml";
-            //string xmlDebug = System.Environment.CurrentDirectory + @"\debug.xml";
+            string xmlAddress = Environment.CurrentDirectory + @"\config.xml";
+            //string xmlDebug = Environment.CurrentDirectory + @"\debug.xml";
 
             // XMLに追記する内容を変数に保存
             XElement xmlPreset = new XElement("preset",
@@ -267,7 +305,7 @@ namespace PR_Manager
                 new XElement("selMonitor", selMonitor.SelectedIndex)
             );
 
-            if (xmlVerify(xmlAddress))
+            if (XmlVerify(xmlAddress))
             {
                 // 同名のプリセットを検索
                 XmlDocument xmlSearch = new XmlDocument();
@@ -275,7 +313,7 @@ namespace PR_Manager
                 XmlNodeList searchPreset = xmlSearch.SelectNodes(@"//preset[@name='" + AskName.gettingValue + @"']");
 
                 // 同名プリセットが存在する場合、確認のプロンプトを表示する
-                if (searchPreset.Count > 0 && System.Windows.MessageBox.Show("同名のプリセットが存在します。\n上書きしますか？", "PR_Manager", MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.Cancel)
+                if (searchPreset.Count > 0 && System.Windows.MessageBox.Show("同名のプリセットが存在します。\n上書きしますか？", pName, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.Cancel)
                 {
                     // 上書きしない場合
                     return;
@@ -324,7 +362,7 @@ namespace PR_Manager
             key.SetValue("UnitySelectMonitor_h17969598", selMonitor.SelectedIndex);         // モニタ選択
             key.SetValue("Screenmanager Resolution Use Native_h1405027254", allowNative);   // ネイティブモード設定
             key.Close();
-            _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+            _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", pName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
         }
 
         /// <summary>
@@ -379,7 +417,19 @@ namespace PR_Manager
         /// <param name="e"></param>
         private void Run_Priconner(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer", "dmmgameplayer://priconner/cl/general/priconner");
+            Process[] ps = Process.GetProcessesByName(appName);
+
+            if (ps.Length > 0)
+            {
+                foreach (Process p in ps)
+                {
+                    p.Kill();
+                }
+            }
+            else
+            {
+                _ = Process.Start("explorer", "dmmgameplayer://priconner/cl/general/priconner");
+            }
         }
 
         /// <summary>

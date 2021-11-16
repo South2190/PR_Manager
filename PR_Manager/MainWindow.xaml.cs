@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -411,7 +410,7 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// プリンセスコネクト！Re:Diveをexplorer経由で実行します。
+        /// プリコネRが起動している場合タスクキル、起動していない場合explorer経由で実行します
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -419,6 +418,7 @@ namespace PR_Manager
         {
             Process[] ps = Process.GetProcessesByName(appName);
 
+            // プリコネRが起動している場合タスクキル
             if (ps.Length > 0)
             {
                 foreach (Process p in ps)
@@ -426,6 +426,7 @@ namespace PR_Manager
                     p.Kill();
                 }
             }
+            // プリコネRが起動していない場合explorer経由で実行
             else
             {
                 _ = Process.Start("explorer", "dmmgameplayer://priconner/cl/general/priconner");

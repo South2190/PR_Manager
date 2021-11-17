@@ -187,10 +187,12 @@ namespace PR_Manager
             if (Process.GetProcessesByName(appName).Length > 0)
             {
                 startButton.Content = "プリコネRを強制終了";
+                startButton.ToolTip = "ゲームを強制終了します";
             }
             else
             {
                 startButton.Content = "プリコネRを起動";
+                startButton.ToolTip = "ゲームを起動します";
             }
         }
 
@@ -450,7 +452,7 @@ namespace PR_Manager
         /// <param name="e"></param>
         private void Key_Judge(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9))
+            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab)
             {
                 e.Handled = true;
                 SystemSounds.Beep.Play();

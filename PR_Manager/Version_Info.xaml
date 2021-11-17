@@ -8,7 +8,7 @@
         Title="バージョン情報" Height="200" Width="290" ResizeMode="NoResize">
     <Grid>
         <TextBlock Text="PR_Manager" FontSize="20" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top"/>
-        <TextBlock Text="バージョン　Beta3.2.211117" FontSize="15" HorizontalAlignment="Left" Margin="30,50,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="バージョン　Beta3.3.211117" FontSize="15" HorizontalAlignment="Left" Margin="30,50,0,0" VerticalAlignment="Top"/>
         <TextBlock Text="製作者　　　SHELL" FontSize="15" HorizontalAlignment="Left" Margin="30,70,0,0" VerticalAlignment="Top"/>
         <Button Name="OKButton" Content="OK" HorizontalAlignment="Left" Margin="180,120,0,0" VerticalAlignment="Top" Width="70" Click="Close_Popup"/>
     </Grid>

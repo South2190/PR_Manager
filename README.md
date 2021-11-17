@@ -28,3 +28,6 @@ DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじ�
 - DMM GAMES版「プリンセスコネクト！Re:Dive」インストール済[^2]
 [^1]:こちらの要件に関してはあまり気にする必要はないと思います。
 [^2]:インストール無しで起動した場合、一部の機能は制限されます。
+
+## 更新履歴
+- [changelog.md](https://github.com/South2190/PR_Manager/blob/main/changelog.md)

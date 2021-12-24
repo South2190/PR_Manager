@@ -1,13 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.IO;
+using System.Linq;
+//using System.Management;
 using System.Media;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace PR_Manager
 {
@@ -45,10 +44,60 @@ namespace PR_Manager
         /// </summary>
         private void Setup()
         {
-            // 接続されているモニタ数だけコンボボックスに選択肢を追加
-            for (int i = 1; i <= Screen.AllScreens.Length; i++)
+            int i;
+
+            // ↓↓↓   これはディスプレイの型番をコンボボックスに表示しようとしたんだけど、
+            //          どうも(プライマリディスプレイを除き)選択したディスプレイの型番と実際に起動してくるディスプレイが噛み合わず断念
+            //          (識別番号との規則性は皆無、プライマリディスプレイからの座標で決まってるのかこれ???)
+
+            /*
+            // 接続されているディスプレイの型番を取得し、コンボボックスに追加
+            string[] MonitorName = new string[Screen.AllScreens.Length];
+            try
             {
-                _ = selMonitor.Items.Add(i);
+                i = 0;
+                ManagementObjectSearcher sercher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM WmiMonitorID");
+                foreach (ManagementObject queryObj in sercher.Get())
+                {
+                    MonitorName[i] = UInt16ArrayToString((ushort[])queryObj["UserFriendlyName"]);
+                    i++;
+                }
+
+                i = 0;
+                foreach (var s in Screen.AllScreens)
+                {
+                    if (s.Primary)
+                    {
+                        _ = selMonitor.Items.Add("1." + MonitorName[i]);
+                        MonitorName[i] = null;
+                    }
+                    i++;
+                }
+
+                int j = 2;
+                for (i = 0; i < Screen.AllScreens.Length; i++)
+                {
+                    if (MonitorName[i] != null)
+                    {
+                        _ = selMonitor.Items.Add(j + "." + MonitorName[i]);
+                        j++;
+                    }
+                }
+            }
+            // ディスプレイの型番が取得できなかった場合、ディスプレイ番号のみコンボボックスに追加
+            catch (Exception)
+            {
+                for (i = 1; i <= Screen.AllScreens.Length; i++)
+                {
+                    _ = selMonitor.Items.Add("ディスプレイ" + i);
+                }
+            }
+            */
+
+            // 接続されているディスプレイ数だけコンボボックスに選択肢を追加
+            for (i = 1; i <= Screen.AllScreens.Length; i++)
+            {
+                _ = selMonitor.Items.Add("ディスプレイ" + i);
             }
 
             // 仮の初期値
@@ -68,6 +117,16 @@ namespace PR_Manager
 
             LoadKey();
             ChangeButton();
+        }
+
+        /// <summary>
+        /// ディスプレイ型番の取得の際に利用する関数です
+        /// </summary>
+        /// <param name="ushortArray"></param>
+        /// <returns></returns>
+        private static string UInt16ArrayToString(ushort[] ushortArray)
+        {
+            return new string(ushortArray.Select(u => (char)u).Where(c => c != 0).ToArray());
         }
 
         /// <summary>
@@ -93,7 +152,7 @@ namespace PR_Manager
                 // ボタンを無効化
                 startButton.IsEnabled = false;
                 applyButton.IsEnabled = false;
-                _ = System.Windows.MessageBox.Show("ターゲットキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", pName, MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", pName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -222,127 +281,9 @@ namespace PR_Manager
                 return false;
             }
 
-            allowNative = ((bool)UseNative.IsChecked && fullScreen == 1) ? 1 : 0;       // フルスクリーン時、チェックが入っていた場合ネイティブにする
+            // フルスクリーン時、チェックが入っていた場合ネイティブにする
+            allowNative = ((bool)UseNative.IsChecked && fullScreen == 1) ? 1 : 0;
             return true;
-        }
-
-        /// <summary>
-        /// XMLファイルが存在するか、形式が正しいかどうかを検証します
-        /// </summary>
-        /// <param name="XmlFilePath"></param>
-        /// <returns>
-        /// 正常な場合はTrue、異常な場合はFalseを返します
-        /// </returns>
-        private bool XmlVerify(string XmlFilePath)
-        {
-            bool Result = false;
-            // XMLファイルが存在する場合
-            if (File.Exists(XmlFilePath))
-            {
-                // XMLファイルの内容を取得
-                StreamReader xmlNullJudge = new StreamReader(XmlFilePath);
-                string line;
-                while ((line = xmlNullJudge.ReadLine()) != null)
-                {
-                    // いずれかの行にタグが存在する場合
-                    if (line.IndexOf(@"<") > 0 && line.IndexOf(@">") > 0)
-                    {
-                        Result = true;
-                    }
-                }
-                xmlNullJudge.Close();
-            }
-
-            // タグが存在した場合のみに実行
-            if (Result)
-            {
-                XmlDocument NodeSearch = new XmlDocument();
-                NodeSearch.Load(XmlFilePath);
-                // "config"タグを検索
-                XmlNodeList manyConfig = NodeSearch.SelectNodes(@"/config");
-                // タグが1つ以外の場合
-                if (manyConfig.Count != 1)
-                {
-                    Result = false;
-                }
-            }
-
-            return Result;
-        }
-
-        /// <summary>
-        /// フォームの入力内容をXMLファイルに保存します
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ExportConfig(object sender, RoutedEventArgs e)
-        {
-            // 変数の値を更新し、エラーが返された場合中断
-            if (!Load_Form())
-            {
-                return;
-            }
-
-            // ユーザーにファイル名を確認する
-            inputBox AskName = new inputBox("プリセット名を入力してください", pName);
-            bool? select = AskName.ShowDialog();
-            // キャンセルが選択された場合中断
-            if (select == false || select == null)
-            {
-                return;
-            }
-
-            // XML出力ディレクトリ設定
-            string xmlAddress = Environment.CurrentDirectory + @"\config.xml";
-            //string xmlDebug = Environment.CurrentDirectory + @"\debug.xml";
-
-            // XMLに追記する内容を変数に保存
-            XElement xmlPreset = new XElement("preset",
-                new XAttribute("name", AskName.gettingValue),
-                new XElement("Mode", fullScreen),
-                new XElement("Width", intWidth),
-                new XElement("Height", intHeight),
-                new XElement("Native", allowNative),
-                new XElement("selMonitor", selMonitor.SelectedIndex)
-            );
-
-            if (XmlVerify(xmlAddress))
-            {
-                // 同名のプリセットを検索
-                XmlDocument xmlSearch = new XmlDocument();
-                xmlSearch.Load(xmlAddress);
-                XmlNodeList searchPreset = xmlSearch.SelectNodes(@"//preset[@name='" + AskName.gettingValue + @"']");
-
-                // 同名プリセットが存在する場合、確認のプロンプトを表示する
-                if (searchPreset.Count > 0 && System.Windows.MessageBox.Show("同名のプリセットが存在します。\n上書きしますか？", pName, MessageBoxButton.OKCancel, MessageBoxImage.Question) == MessageBoxResult.Cancel)
-                {
-                    // 上書きしない場合
-                    return;
-                }
-                else
-                {
-                    // 上書きする場合
-                    for (int i = searchPreset.Count - 1; i >= 0; i--)
-                    {
-                        _ = searchPreset[i].ParentNode.RemoveChild(searchPreset[i]);
-                    }
-                    //xmlSearch.Save(xmlDebug);
-                    xmlSearch.Save(xmlAddress);
-                }
-                XElement xmlConfig = XElement.Load(xmlAddress);
-                xmlConfig.Add(xmlPreset);
-                xmlConfig.Save(xmlAddress);
-            }
-            else
-            {
-                XDocument xmlConfig = new XDocument
-                (
-                    new XDeclaration("1.0", "utf-8", "true"),
-                    new XComment("このファイルは基本的に書き換えないでください"),
-                    new XElement("config", xmlPreset)
-                );
-                xmlConfig.Save(xmlAddress);
-            }
         }
 
         /// <summary>
@@ -444,6 +385,18 @@ namespace PR_Manager
         {
             Close();
         }
+
+        /*
+        /// <summary>
+        /// テストしたいプログラムや機能がある場合この関数内に記述します
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TestProgram(object sender, RoutedEventArgs e)
+        {
+            // テストしたいプログラムをここに入力
+        }
+        */
 
         /// <summary>
         /// 数字以外のキー入力を無効化し、警告音を鳴らします

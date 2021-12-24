@@ -5,23 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         FontFamily="Meiryo"
-        Title="PR_Manager" Height="255" Width="295" ResizeMode="CanMinimize">
+        Title="PR_Manager" Height="407" Width="297" ResizeMode="CanMinimize">
     <Grid>
         <Menu HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
             <MenuItem Header="インポート(_I)" TabIndex="0">
                 <MenuItem Header="現在の設定をレジストリから読み込む(_U)" Click="LoadSettings"/>
             </MenuItem>
+            <!--
             <MenuItem Header="エクスポート(_E)" TabIndex="1">
-                <MenuItem Header="現在の入力内容をプリセットに保存(_P)..." Click="ExportConfig"/>
             </MenuItem>
+            -->
             <MenuItem Header="その他(_O)" TabIndex="2">
+                <!--
+                <MenuItem Header="テストボタン(_T)" Click="TestProgram" />
+                <Separator/>
+                -->
                 <MenuItem Header="バージョン情報(_A)..." Click="Version_Info"/>
                 <MenuItem Header="終了(_X)" Click="This_Exit"/>
             </MenuItem>
         </Menu>
-        <RadioButton Name="ModeW" Content="ウインドウ" HorizontalAlignment="Left" Margin="40,35,0,0" VerticalAlignment="Top" GroupName="mode" Checked="WindowRadio_Checked" ToolTip="ウインドウモードで起動します" TabIndex="3"/>
-        <RadioButton Name="ModeF" Content="フルスクリーン" HorizontalAlignment="Left" Margin="140,35,0,0" VerticalAlignment="Top" GroupName="mode" Checked="FullscreenRadio_Checked" ToolTip="フルスクリーンモードで起動します(Alt+F4で終了)" TabIndex="4"/>
-        <GroupBox Header="解像度" HorizontalAlignment="Left" Height="100" Margin="25,60,0,0" VerticalAlignment="Top" Width="115">
+        <GroupBox Header="モード選択" HorizontalAlignment="Left" Height="80" Margin="25,30,0,0" VerticalAlignment="Top" Width="230">
+            <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Margin" Value="0,7,0,0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <StackPanel>
+                    <RadioButton Name="ModeW" Content="ウインドウ" GroupName="mode" Checked="WindowRadio_Checked" ToolTip="ウインドウモードで起動します" TabIndex="3"/>
+                </StackPanel>
+                <StackPanel>
+                    <RadioButton Name="ModeF" Content="フルスクリーン" GroupName="mode" Checked="FullscreenRadio_Checked" ToolTip="フルスクリーンモードで起動します(Alt+F4で終了)" TabIndex="4"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="解像度" HorizontalAlignment="Left" Height="100" Margin="25,120,0,0" VerticalAlignment="Top" Width="230">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type StackPanel}">
@@ -44,10 +62,10 @@
                 <CheckBox Name="UseNative" Content="Native(推奨)" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="7"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="モニター選択" HorizontalAlignment="Left" Height="100" Margin="155,60,0,0" VerticalAlignment="Top" Width="100">
-            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="40" ToolTip="起動時にゲームを表示するモニターを選択します" RenderTransformOrigin="-0.15,-0.12" TabIndex="8"/>
+        <GroupBox Header="起動ディスプレイ選択" HorizontalAlignment="Left" Height="75" Margin="25,230,0,0" VerticalAlignment="Top" Width="230">
+            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="8"/>
         </GroupBox>
-        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,175,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" TabIndex="10"/>
-        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,175,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="Rewrite_Reg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="9"/>
+        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,325,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" TabIndex="10"/>
+        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,325,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="Rewrite_Reg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="9"/>
     </Grid>
 </Window>

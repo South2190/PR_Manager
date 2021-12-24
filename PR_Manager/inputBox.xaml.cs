@@ -59,7 +59,7 @@ namespace PR_Manager
 
         private void Window_Closeing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if(DialogResult == null)
+            if (DialogResult == null)
             {
                 DialogResult = false;
             }

@@ -8,8 +8,23 @@
         Title="バージョン情報" Height="200" Width="290" ResizeMode="NoResize">
     <Grid>
         <TextBlock Text="PR_Manager" FontSize="20" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top"/>
-        <TextBlock Text="バージョン　Beta3.3.211117" FontSize="15" HorizontalAlignment="Left" Margin="30,50,0,0" VerticalAlignment="Top"/>
-        <TextBlock Text="製作者　　　SHELL" FontSize="15" HorizontalAlignment="Left" Margin="30,70,0,0" VerticalAlignment="Top"/>
+        <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top">
+            <!--
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Setter Property="Margin" Value="0,0,0,0"/>
+                </Style>
+            </StackPanel.Resources>
+            -->
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="バージョン" FontSize="15" Width="100" VerticalAlignment="Center"/>
+                <TextBlock Text="4.0.0.211225β" FontSize="15" Width="120" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="製作者" FontSize="15" Width="100" VerticalAlignment="Center"/>
+                <TextBlock Text="SHELL" FontSize="15" Width="120" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
         <Button Name="OKButton" Content="OK" HorizontalAlignment="Left" Margin="180,120,0,0" VerticalAlignment="Top" Width="70" Click="Close_Popup"/>
     </Grid>
 </Window>

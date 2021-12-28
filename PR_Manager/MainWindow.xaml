@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         FontFamily="Meiryo"
-        Title="PR_Manager" Height="407" Width="297" ResizeMode="CanMinimize">
+        Title="PR_Manager"
+        Height="442" Width="297"
+        ResizeMode="CanMinimize"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
     <Grid>
         <Menu HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
             <MenuItem Header="インポート(_I)" TabIndex="0">
@@ -39,8 +43,9 @@
                 </StackPanel>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="解像度" HorizontalAlignment="Left" Height="100" Margin="25,120,0,0" VerticalAlignment="Top" Width="230">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+        <GroupBox Header="解像度" HorizontalAlignment="Left" Height="135" Margin="25,120,0,0" VerticalAlignment="Top" Width="230">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!--
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type StackPanel}">
                         <Setter Property="Margin" Value="0,3,0,0"/>
@@ -49,23 +54,38 @@
                         <Setter Property="Margin" Value="0,4,0,0"/>
                     </Style>
                 </StackPanel.Resources>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                    <TextBox Name="WidthBox" Width="45" Height="20" HorizontalAlignment="Center" MaxLength="5" KeyDown="Key_Judge" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="5"/>
-                    <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                -->
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                            <TextBox Name="WidthBox" Width="45" Height="20" MaxLength="5" KeyDown="Key_Judge" TextChanged="Fixass_W" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="5"/>
+                            <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                            <TextBox Name="HeightBox" Width="45" Height="20" MaxLength="5" KeyDown="Key_Judge" TextChanged="Fixass_H" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(横)を指定します" TabIndex="6"/>
+                            <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <CheckBox Name="UseNative" Content="Native" Margin="15,14,0,0" VerticalAlignment="Top" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="7"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                    <TextBox Name="HeightBox" Width="45" Height="20" HorizontalAlignment="Center" MaxLength="5" KeyDown="Key_Judge" InputScope="Number" ToolTip="ゲーム画面の解像度(横)を指定します" TabIndex="6"/>
-                    <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                <StackPanel Orientation="Vertical" Margin="0,15,0,0">
+                    <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" Checked="Fixass_Checked" Unchecked="Fixass_Unchecked" ToolTip="解像度の縦と横の比率を固定できます" TabIndex="8"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
+                        <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                        <TextBox Name="AssW" Width="36" Height="20" MaxLength="4" KeyDown="Key_Judge" InputScope="Number" ToolTip="アスペクト比(横)を入力します" TabIndex="9"/>
+                        <TextBlock Text=":" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                        <TextBox Name="AssH" Width="36" Height="20" MaxLength="4" KeyDown="Key_Judge" InputScope="Number" ToolTip="アスペクト比(縦)を入力します" TabIndex="10"/>
+                        <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
+                    </StackPanel>
                 </StackPanel>
-                <CheckBox Name="UseNative" Content="Native(推奨)" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="7"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="起動ディスプレイ選択" HorizontalAlignment="Left" Height="75" Margin="25,230,0,0" VerticalAlignment="Top" Width="230">
-            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="8"/>
+        <GroupBox Header="起動ディスプレイ選択" HorizontalAlignment="Left" Height="75" Margin="25,265,0,0" VerticalAlignment="Top" Width="230">
+            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="11"/>
         </GroupBox>
-        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,325,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" TabIndex="10"/>
-        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,325,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="Rewrite_Reg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="9"/>
+        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,360,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="Run_Priconner" TabIndex="13"/>
+        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,360,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="Rewrite_Reg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="12"/>
     </Grid>
 </Window>

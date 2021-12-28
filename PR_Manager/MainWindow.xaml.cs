@@ -21,6 +21,8 @@ namespace PR_Manager
         public int fullScreen;
         public int chooseMonitor;
         public int allowNative;
+        public bool WidthFocus;
+        public bool HeightFocus;
         public string pName = "PR_Manager";
         public string appName = "PrincessConnectReDive";
         private bool flg = true;
@@ -109,6 +111,10 @@ namespace PR_Manager
                 selMonitor.IsEnabled = false;
             }
 
+            // アスペクト比テキストボックスを無効にする(仮)
+            AssW.IsEnabled = false;
+            AssH.IsEnabled = false;
+
             // タイマーの宣言
             Timer timer = new Timer();
             timer.Tick += new EventHandler(TickHandler);
@@ -132,8 +138,6 @@ namespace PR_Manager
         /// <summary>
         /// 一定時間毎にこの関数内のプログラムを実行します。
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void TickHandler(object sender, EventArgs e)
         {
             ChangeButton();
@@ -287,6 +291,51 @@ namespace PR_Manager
         }
 
         /// <summary>
+        /// 一方の解像度が入力された時、指定されたアスペクト比に応じてもう一方の解像度を計算し自動入力します
+        /// </summary>
+        /// <param name="Side">横の場合は(W)、縦の場合は(H)</param>
+        private void Fixed_AspectRatio(char Side, int Resolution)
+        {
+            int Ans;
+
+            // アスペクト比の固定が有効かどうかを確認する
+            if (AllowFixedass.IsChecked != true)
+            {
+                return;
+            }
+
+            // アスペクト比が正しく入力されているか確認する
+            bool convertCheck;
+            convertCheck = int.TryParse(AssW.Text, out int AspectW);
+            convertCheck &= int.TryParse(AssH.Text, out int AspectH);
+
+            // 数値が負数の場合falseを返す
+            if (AspectW < 0 || AspectH < 0)
+            {
+                convertCheck = false;
+            }
+
+            // 正しい数値でない場合は解像度の固定を行わない
+            if (!convertCheck)
+            {
+                return;
+            }
+
+            // 横から計算した場合
+            if (Side == 'W')
+            {
+                Ans = AspectH * Resolution / AspectW;
+                HeightBox.Text = Ans.ToString();
+            }
+            // 縦から計算する場合
+            else if (Side == 'H')
+            {
+                Ans = AspectW * Resolution / AspectH;
+                WidthBox.Text = Ans.ToString();
+            }
+        }
+
+        /// <summary>
         /// フォームの入力内容をレジストリに反映します。
         /// </summary>
         private void Rewrite_Reg(object sender, RoutedEventArgs e)
@@ -308,55 +357,8 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// Loadkey()トリガー
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LoadSettings(object sender, RoutedEventArgs e)
-        {
-            LoadKey();
-        }
-
-        /// <summary>
-        /// バージョン情報の表示
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Version_Info(object sender, RoutedEventArgs e)
-        {
-            Version_Info infoWindow = new Version_Info();
-            _ = infoWindow.ShowDialog();
-        }
-
-        /// <summary>
-        /// 「ウインドウ」ラジオボタンが選択された場合の処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void WindowRadio_Checked(object sender, RoutedEventArgs e)
-        {
-            fullScreen = 3;
-            // Nativeチェックボックスを無効化
-            UseNative.IsEnabled = false;
-        }
-
-        /// <summary>
-        /// 「フルスクリーン」ラジオボタンが選択された場合の処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FullscreenRadio_Checked(object sender, RoutedEventArgs e)
-        {
-            fullScreen = 1;
-            // Nativeチェックボックスを有効化
-            UseNative.IsEnabled = true;
-        }
-
-        /// <summary>
         /// プリコネRが起動している場合タスクキル、起動していない場合explorer経由で実行します
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Run_Priconner(object sender, RoutedEventArgs e)
         {
             Process[] ps = Process.GetProcessesByName(appName);
@@ -377,21 +379,110 @@ namespace PR_Manager
         }
 
         /// <summary>
+        /// Loadkey()トリガー
+        /// </summary>
+        private void LoadSettings(object sender, RoutedEventArgs e)
+        {
+            LoadKey();
+        }
+
+        /// <summary>
+        /// バージョン情報を表示します
+        /// </summary>
+        private void Version_Info(object sender, RoutedEventArgs e)
+        {
+            Version_Info infoWindow = new Version_Info();
+            _ = infoWindow.ShowDialog();
+        }
+
+        /// <summary>
         /// ツールを終了します
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void This_Exit(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        /// 「ウインドウ」ラジオボタンが選択された場合の処理
+        /// </summary>
+        private void WindowRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            fullScreen = 3;
+            // Nativeチェックボックスを無効化
+            UseNative.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// 「フルスクリーン」ラジオボタンが選択された場合の処理
+        /// </summary>
+        private void FullscreenRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            fullScreen = 1;
+            // Nativeチェックボックスを有効化
+            UseNative.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// 「横」テキストボックスの内容が変更された場合の処理
+        /// </summary>
+        private void Fixass_W(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (int.TryParse(WidthBox.Text, out int getVal) && WidthFocus)
+            {
+                Fixed_AspectRatio('W', getVal);
+            }
+        }
+
+        /// <summary>
+        /// 「縦」テキストボックスの内容が変更された場合の処理
+        /// </summary>
+        private void Fixass_H(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (int.TryParse(HeightBox.Text, out int getVal) && HeightFocus)
+            {
+                Fixed_AspectRatio('H', getVal);
+            }
+        }
+
+        /// <summary>
+        /// 「縦」と「横」テキストボックスのフォーカス状況を格納します
+        /// </summary>
+        private void WidthGotFocus(object sender, RoutedEventArgs e)
+        {
+            WidthFocus = true;
+        }
+        private void WidthLostFocus(object sender, RoutedEventArgs e)
+        {
+            WidthFocus = false;
+        }
+        private void HeightGotFocus(object sender, RoutedEventArgs e)
+        {
+            HeightFocus = true;
+        }
+        private void HeightLostFocus(object sender, RoutedEventArgs e)
+        {
+            HeightFocus = false;
+        }
+
+        /// <summary>
+        /// 「アスペクト比を固定する」チェックボックスのチェック状況に応じてテキストボックスの有効と無効を切り替えます
+        /// </summary>
+        private void Fixass_Checked(object sender, RoutedEventArgs e)
+        {
+            AssW.IsEnabled = true;
+            AssH.IsEnabled = true;
+        }
+        private void Fixass_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AssW.IsEnabled = false;
+            AssH.IsEnabled = false;
         }
 
         /*
         /// <summary>
         /// テストしたいプログラムや機能がある場合この関数内に記述します
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void TestProgram(object sender, RoutedEventArgs e)
         {
             // テストしたいプログラムをここに入力
@@ -401,8 +492,6 @@ namespace PR_Manager
         /// <summary>
         /// 数字以外のキー入力を無効化し、警告音を鳴らします
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Key_Judge(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab)

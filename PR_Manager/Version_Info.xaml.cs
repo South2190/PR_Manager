@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.Windows;
+using System.Windows.Navigation;
 
 namespace PR_Manager
 {
@@ -15,12 +15,24 @@ namespace PR_Manager
         public Version_Info()
         {
             InitializeComponent();
+            ThisName.Text = MainWindow.ThisName;
             _ = OKButton.Focus();
         }
 
-        private void Close_Popup(object sender, RoutedEventArgs e)      // ウインドウを閉じる
+        /// <summary>
+        /// OKボタンがクリックされた場合にウインドウを閉じます
+        /// </summary>
+        private void Close_Popup(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        /// ハイパーリンクがクリックされた時の挙動を指定します
+        /// </summary>
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            _ = Process.Start(e.Uri.ToString());
         }
     }
 }

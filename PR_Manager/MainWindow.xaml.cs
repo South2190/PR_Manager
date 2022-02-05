@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using System.Linq;
+//using System.Linq;
 //using System.Management;
 using System.Media;
 using System.Windows;
@@ -15,7 +15,30 @@ namespace PR_Manager
     /// </summary>
     public partial class MainWindow : Window
     {
-        // ----------各変数等の宣言----------
+        // ---------------ツールの設定(読み取り専用)---------------
+        // ウインドウタイトル
+#if DEBUG
+        public const string ThisName = "PR_Manager(DEBUG)";
+#elif TRACE
+        public const string ThisName = "PR_Manager";
+#endif
+        // ツールの設定ファイル名
+        public const string ConfigFileName = "PR_Manager.exe.config";
+        // プリコネR起動URI
+        public const string GameStartupUri = "dmmgameplayer://priconner/cl/general/priconner";
+        // プリコネRの実行ファイルの名前
+        public const string TargetAppName = "PrincessConnectReDive";
+        // プリコネRのレジストリキーのパス
+        public const string RegKey = @"Software\Cygames\PrincessConnectReDive";
+        // プリコネRのレジストリ値の名前
+        public const string intWidthKey = "Screenmanager Resolution Width_h182942802";              // 横解像度
+        public const string intHeightKey = "Screenmanager Resolution Height_h2627697771";           // 縦解像度
+        public const string fullScreenKey = "Screenmanager Fullscreen mode_h3630240806";            // ウインドウまたはフルスクリーンモード
+        public const string allowNativeKey = "Screenmanager Resolution Use Native_h1405027254";     // ネイティブ
+        public const string chooseMonitorKey = "UnitySelectMonitor_h17969598";                      // モニタ選択
+        // --------------------------------------------------------
+
+        // グローバル変数の宣言
         public int intWidth;
         public int intHeight;
         public int fullScreen;
@@ -23,8 +46,6 @@ namespace PR_Manager
         public int allowNative;
         public bool WidthFocus;
         public bool HeightFocus;
-        public string pName = "PR_Manager";
-        public string appName = "PrincessConnectReDive";
         private bool flg = true;
 
         public MainWindow()
@@ -46,6 +67,8 @@ namespace PR_Manager
         /// </summary>
         private void Setup()
         {
+            Title = ThisName;
+
             int i;
 
             // ↓↓↓   これはディスプレイの型番をコンボボックスに表示しようとしたんだけど、
@@ -96,6 +119,8 @@ namespace PR_Manager
             }
             */
 
+            //if (!File.Exists())
+
             // 接続されているディスプレイ数だけコンボボックスに選択肢を追加
             for (i = 1; i <= Screen.AllScreens.Length; i++)
             {
@@ -115,8 +140,10 @@ namespace PR_Manager
             AssW.IsEnabled = false;
             AssH.IsEnabled = false;
 
+            startButton.Content = "プリコネRを起動";
+
             // タイマーの宣言
-            Timer timer = new Timer();
+            Timer timer = new();
             timer.Tick += new EventHandler(TickHandler);
             timer.Interval = 1000/* ms */;
             timer.Start();
@@ -125,6 +152,7 @@ namespace PR_Manager
             ChangeButton();
         }
 
+        /*
         /// <summary>
         /// ディスプレイ型番の取得の際に利用する関数です
         /// </summary>
@@ -134,6 +162,7 @@ namespace PR_Manager
         {
             return new string(ushortArray.Select(u => (char)u).Where(c => c != 0).ToArray());
         }
+        */
 
         /// <summary>
         /// 一定時間毎にこの関数内のプログラムを実行します。
@@ -144,11 +173,11 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// レジストリから現在の設定値を取得し、フォームに内容を反映します。
+        /// レジストリから現在の設定値を取得し、フォームに内容を反映します
         /// </summary>
         private void LoadKey()
         {
-            RegistryKey Load = Registry.CurrentUser.OpenSubKey(@"Software\Cygames\PrincessConnectReDive");
+            RegistryKey Load = Registry.CurrentUser.OpenSubKey(RegKey);
 
             // キーが見つからなかった場合は中断
             if (Load == null)
@@ -156,7 +185,7 @@ namespace PR_Manager
                 // ボタンを無効化
                 startButton.IsEnabled = false;
                 applyButton.IsEnabled = false;
-                _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", pName, MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -168,11 +197,11 @@ namespace PR_Manager
             bool loadResult = true;
             try
             {
-                fullScreen = (int)Load.GetValue("Screenmanager Fullscreen mode_h3630240806");
-                intWidth = (int)Load.GetValue("Screenmanager Resolution Width_h182942802");
-                intHeight = (int)Load.GetValue("Screenmanager Resolution Height_h2627697771");
-                allowNative = (int)Load.GetValue("Screenmanager Resolution Use Native_h1405027254");
-                chooseMonitor = (int)Load.GetValue("UnitySelectMonitor_h17969598");
+                intWidth = (int)Load.GetValue(intWidthKey);                 // 横解像度
+                intHeight = (int)Load.GetValue(intHeightKey);               // 縦解像度
+                fullScreen = (int)Load.GetValue(fullScreenKey);             // ウインドウまたはフルスクリーンモード
+                allowNative = (int)Load.GetValue(allowNativeKey);           // ネイティブ
+                chooseMonitor = (int)Load.GetValue(chooseMonitorKey);       // モニタ選択
             }
             catch (NullReferenceException)
             {
@@ -237,33 +266,54 @@ namespace PR_Manager
             // 例外が発生した場合警告を表示
             if (!loadResult)
             {
-                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", pName, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", ThisName, MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
 
         /// <summary>
-        /// プリコネRのプロセスの存在有無別でボタンの表示と動作を切り替えます。
+        /// プリコネRのプロセスの存在有無別でボタンの表示と動作を切り替えます
         /// </summary>
         private void ChangeButton()
         {
-            // プリコネRが起動しているかどうかの判定
-            if (Process.GetProcessesByName(appName).Length > 0)
+            // プリコネRが起動している場合
+            if (Process.GetProcessesByName(TargetAppName).Length <= 0)
             {
-                startButton.Content = "プリコネRを強制終了";
-                startButton.ToolTip = "ゲームを強制終了します";
-            }
-            else
-            {
+                if (!startButton.IsEnabled)
+                {
+                    startButton.IsEnabled = true;
+                }
                 startButton.Content = "プリコネRを起動";
                 startButton.ToolTip = "ゲームを起動します";
+            }
+            // プリコネRが起動していない場合、設定に応じて表示と動作を変える
+            else
+            {
+                switch (Properties.Settings.Default.GameEndButton)
+                {
+                    case "Sendsignal":
+                        startButton.Content = "プリコネRを終了";
+                        startButton.ToolTip = "ゲームを終了します";
+                        break;
+                    case "Taskkill":
+                        startButton.Content = "プリコネRを強制終了";
+                        startButton.ToolTip = "ゲームを強制終了します";
+                        break;
+                    case "Disabled":
+                    default:
+                        if (startButton.IsEnabled)
+                        {
+                            startButton.IsEnabled = false;
+                        }
+                        break;
+                }
             }
         }
 
         /// <summary>
-        /// フォームに入力されている内容を変数に代入します。
+        /// フォームに入力されている内容を変数に代入します
         /// </summary>
         /// <returns>
-        /// フォームの入力内容が正しく変数に代入された場合(true)、それ以外の場合(false)を返します。
+        /// フォームの入力内容が正しく変数に代入された場合(true)、それ以外の場合(false)を返します
         /// </returns>
         private bool Load_Form()
         {
@@ -281,7 +331,7 @@ namespace PR_Manager
             // 変数がfalseの場合中断
             if (!convertCheck)
             {
-                _ = System.Windows.MessageBox.Show("解像度の入力値が不正です。正しく入力したか確認してください。\n\n・半角数字のみが入力されているか\n・正の整数が入力されているか", pName, MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("解像度の入力値が不正です。正しく入力したか確認してください。\n\n・半角数字のみが入力されているか\n・正の整数が入力されているか", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -321,17 +371,20 @@ namespace PR_Manager
                 return;
             }
 
-            // 横から計算した場合
-            if (Side == 'W')
+            switch (Side)
             {
-                Ans = AspectH * Resolution / AspectW;
-                HeightBox.Text = Ans.ToString();
-            }
-            // 縦から計算する場合
-            else if (Side == 'H')
-            {
-                Ans = AspectW * Resolution / AspectH;
-                WidthBox.Text = Ans.ToString();
+                // 横から計算する場合
+                case 'W':
+                    Ans = AspectH * Resolution / AspectW;
+                    HeightBox.Text = Ans.ToString();
+                    break;
+                // 縦から計算する場合
+                case 'H':
+                    Ans = AspectW * Resolution / AspectH;
+                    WidthBox.Text = Ans.ToString();
+                    break;
+                default:
+                    return;
             }
         }
 
@@ -346,14 +399,14 @@ namespace PR_Manager
                 return;
             }
 
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Cygames\PrincessConnectReDive", true);
-            key.SetValue("Screenmanager Resolution Width_h182942802", intWidth);            // 横解像度
-            key.SetValue("Screenmanager Resolution Height_h2627697771", intHeight);         // 縦解像度
-            key.SetValue("Screenmanager Fullscreen mode_h3630240806", fullScreen);          // ウインドウまたはフルスクリーンモード
-            key.SetValue("UnitySelectMonitor_h17969598", selMonitor.SelectedIndex);         // モニタ選択
-            key.SetValue("Screenmanager Resolution Use Native_h1405027254", allowNative);   // ネイティブモード設定
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(RegKey, true);
+            key.SetValue(intWidthKey, intWidth);                            // 横解像度
+            key.SetValue(intHeightKey, intHeight);                          // 縦解像度
+            key.SetValue(fullScreenKey, fullScreen);                        // ウインドウまたはフルスクリーンモード
+            key.SetValue(allowNativeKey, allowNative);                      // ネイティブ
+            key.SetValue(chooseMonitorKey, selMonitor.SelectedIndex);       // モニタ選択
             key.Close();
-            _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", pName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
+            _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", ThisName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
         }
 
         /// <summary>
@@ -361,20 +414,44 @@ namespace PR_Manager
         /// </summary>
         private void Run_Priconner(object sender, RoutedEventArgs e)
         {
-            Process[] ps = Process.GetProcessesByName(appName);
+            Process[] ps = Process.GetProcessesByName(TargetAppName);
 
-            // プリコネRが起動している場合タスクキル
-            if (ps.Length > 0)
+            // プリコネRが起動していない場合起動する
+            if (ps.Length <= 0)
             {
-                foreach (Process p in ps)
+                try
                 {
-                    p.Kill();
+                    _ = Process.Start(GameStartupUri);
+                }
+                catch
+                {
+                    return;
                 }
             }
-            // プリコネRが起動していない場合explorer経由で実行
+            // プリコネRが起動している場合
             else
             {
-                _ = Process.Start("explorer", "dmmgameplayer://priconner/cl/general/priconner");
+                switch (Properties.Settings.Default.GameEndButton)
+                {
+                    // タスクキルを行う場合
+                    case "Taskkill":
+                        foreach (Process p in ps)
+                        {
+                            p.Kill();
+                        }
+                        break;
+                    // コマンドプロンプト経由で終了シグナルを送信する場合
+                    case "Sendsignal":
+                        ProcessStartInfo Endgame = new("cmd")
+                        {
+                            Arguments = "/c taskkill /im " + TargetAppName + ".exe",
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        _ = Process.Start(Endgame);
+                        break;
+                    default:
+                        return;
+                }
             }
         }
 
@@ -391,7 +468,8 @@ namespace PR_Manager
         /// </summary>
         private void Version_Info(object sender, RoutedEventArgs e)
         {
-            Version_Info infoWindow = new Version_Info();
+            Version_Info infoWindow = new();
+            infoWindow.Owner = this;
             _ = infoWindow.ShowDialog();
         }
 
@@ -446,6 +524,42 @@ namespace PR_Manager
         }
 
         /// <summary>
+        /// 「アスペクト比を固定する」チェックボックスのチェック状況に応じてテキストボックスの有効と無効を切り替えます
+        /// </summary>
+        private void Fixass_Checked(object sender, RoutedEventArgs e)
+        {
+            AssW.IsEnabled = true;
+            AssH.IsEnabled = true;
+        }
+        private void Fixass_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AssW.IsEnabled = false;
+            AssH.IsEnabled = false;
+        }
+
+#if DEBUG
+        /// <summary>
+        /// テストしたいプログラムや機能がある場合この関数内に記述します
+        /// </summary>
+        private void TestProgram(object sender, RoutedEventArgs e)
+        {
+            // テストしたいプログラムをここに入力
+            /*
+            SolidColorBrush Dark = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
+            Background = Dark;
+            MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
+            */
+            App app = (App)System.Windows.Application.Current;
+            bool f = app.RunSelfAsAdmin();
+
+            if (f)
+            {
+                Close();
+            }
+        }
+#endif
+
+        /// <summary>
         /// 「縦」と「横」テキストボックスのフォーカス状況を格納します
         /// </summary>
         private void WidthGotFocus(object sender, RoutedEventArgs e)
@@ -464,30 +578,6 @@ namespace PR_Manager
         {
             HeightFocus = false;
         }
-
-        /// <summary>
-        /// 「アスペクト比を固定する」チェックボックスのチェック状況に応じてテキストボックスの有効と無効を切り替えます
-        /// </summary>
-        private void Fixass_Checked(object sender, RoutedEventArgs e)
-        {
-            AssW.IsEnabled = true;
-            AssH.IsEnabled = true;
-        }
-        private void Fixass_Unchecked(object sender, RoutedEventArgs e)
-        {
-            AssW.IsEnabled = false;
-            AssH.IsEnabled = false;
-        }
-
-        /*
-        /// <summary>
-        /// テストしたいプログラムや機能がある場合この関数内に記述します
-        /// </summary>
-        private void TestProgram(object sender, RoutedEventArgs e)
-        {
-            // テストしたいプログラムをここに入力
-        }
-        */
 
         /// <summary>
         /// 数字以外のキー入力を無効化し、警告音を鳴らします

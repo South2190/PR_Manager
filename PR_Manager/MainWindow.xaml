@@ -5,13 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         FontFamily="Meiryo"
-        Title="PR_Manager"
         Height="442" Width="297"
-        ResizeMode="CanMinimize"
-        UseLayoutRounding="True"
-        TextOptions.TextFormattingMode="Display">
+        ResizeMode="CanMinimize">
+    <!--
+    <Window.Resources>
+        <Style TargetType="{x:Type Control}" x:Key="Light">
+            <Setter Property="Background" Value="#FFFFFFFF"/>
+        </Style>
+    </Window.Resources>
+    -->
     <Grid>
-        <Menu HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
+        <Menu Name="MenuBar" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
             <MenuItem Header="インポート(_I)" TabIndex="0">
                 <MenuItem Header="現在の設定をレジストリから読み込む(_U)" Click="LoadSettings"/>
             </MenuItem>
@@ -21,7 +25,7 @@
             -->
             <MenuItem Header="その他(_O)" TabIndex="2">
                 <!--
-                <MenuItem Header="テストボタン(_T)" Click="TestProgram" />
+                <MenuItem Header="テストボタン(_T)" Click="TestProgram"/>
                 <Separator/>
                 -->
                 <MenuItem Header="バージョン情報(_A)..." Click="Version_Info"/>

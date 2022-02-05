@@ -22,5 +22,29 @@ namespace PR_Manager.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RequireAdmin {
+            get {
+                return ((bool)(this["RequireAdmin"]));
+            }
+            set {
+                this["RequireAdmin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Taskkill")]
+        public string GameEndButton {
+            get {
+                return ((string)(this["GameEndButton"]));
+            }
+            set {
+                this["GameEndButton"] = value;
+            }
+        }
     }
 }

@@ -6,12 +6,12 @@
         mc:Ignorable="d"
         FontFamily="Meiryo"
         Title="バージョン情報"
-        Height="200" Width="290"
+        Height="220" Width="290"
         ResizeMode="NoResize"
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display">
     <Grid>
-        <TextBlock Text="PR_Manager" FontSize="20" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top"/>
+        <TextBlock Name="ThisName" FontSize="20" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top"/>
         <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top">
             <!--
             <StackPanel.Resources>
@@ -22,13 +22,24 @@
             -->
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="バージョン" FontSize="15" Width="100" VerticalAlignment="Center"/>
-                <TextBlock Text="4.1.0.211228β" FontSize="15" Width="120" VerticalAlignment="Center"/>
+                <TextBlock Text="4.1.1.220205β" FontSize="15" Width="120" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="製作者" FontSize="15" Width="100" VerticalAlignment="Center"/>
                 <TextBlock Text="SHELL" FontSize="15" Width="120" VerticalAlignment="Center"/>
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <TextBlock FontSize="14" Width="55">
+                    <Hyperlink NavigateUri="https://github.com/South2190/PR_Manager" RequestNavigate="Hyperlink_RequestNavigate">GitHub</Hyperlink>
+                </TextBlock>
+                <TextBlock FontSize="14" Width="80">
+                    <Hyperlink NavigateUri="https://github.com/South2190/PR_Manager/releases" RequestNavigate="Hyperlink_RequestNavigate">更新の確認</Hyperlink>
+                </TextBlock>
+                <TextBlock FontSize="14">
+                    <Hyperlink NavigateUri="https://github.com/South2190/PR_Manager/blob/main/changelog.md" RequestNavigate="Hyperlink_RequestNavigate">更新履歴</Hyperlink>
+                </TextBlock>
+            </StackPanel>
         </StackPanel>
-        <Button Name="OKButton" Content="OK" HorizontalAlignment="Left" Margin="180,120,0,0" VerticalAlignment="Top" Width="70" Click="Close_Popup"/>
+        <Button Name="OKButton" Content="OK(_O)" HorizontalAlignment="Left" Margin="180,140,0,0" VerticalAlignment="Top" Width="70" Click="Close_Popup"/>
     </Grid>
 </Window>

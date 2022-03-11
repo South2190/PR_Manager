@@ -1,4 +1,8 @@
 # PR_Manager
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/South2190/PR_Manager)](https://github.com/South2190/PR_Manager/releases)
+[![](https://img.shields.io/badge/-changelog-green)](https://github.com/South2190/PR_Manager/blob/main/changelog.md)
+
 DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじれるツール。
 
 ## ダウンロード
@@ -29,6 +33,3 @@ DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじ�
 [^1]:[Windowsシステム要件に関するお知らせ | プリンセスコネクト！Re:Dive (プリコネR) 公式サイト | Cygames](https://priconne-redive.jp/news/information/10499/)
 [^2]:こちらの要件に関してはあまり気にする必要はないと思います。
 [^3]:インストール無しで起動した場合、主要機能のほとんどは利用できません。
-
-## 更新履歴
-- [changelog.md](https://github.com/South2190/PR_Manager/blob/main/changelog.md)

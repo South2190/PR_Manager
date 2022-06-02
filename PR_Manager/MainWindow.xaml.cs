@@ -4,6 +4,7 @@ using System.Diagnostics;
 //using System.Linq;
 //using System.Management;
 using System.Media;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -25,7 +26,7 @@ namespace PR_Manager
         // ツールの設定ファイル名
         public const string ConfigFileName = "PR_Manager.exe.config";
         // プリコネR起動URI
-        public const string GameStartupUri = "dmmgameplayer://priconner/cl/general/priconner";
+        public const string GameStartupUri = "dmmgameplayer://priconner/cl/general";
         // プリコネRの実行ファイルの名前
         public const string TargetAppName = "PrincessConnectReDive";
         // プリコネRのレジストリキーのパス
@@ -142,14 +143,7 @@ namespace PR_Manager
 
             startButton.Content = "プリコネRを起動";
 
-            // タイマーの宣言
-            Timer timer = new();
-            timer.Tick += new EventHandler(TickHandler);
-            timer.Interval = 1000/* ms */;
-            timer.Start();
-
             LoadKey();
-            ChangeButton();
         }
 
         /*
@@ -192,6 +186,14 @@ namespace PR_Manager
             // ボタンを有効化
             startButton.IsEnabled = true;
             applyButton.IsEnabled = true;
+
+            ChangeButton();
+
+            // タイマーの宣言
+            Timer timer = new();
+            timer.Tick += new EventHandler(TickHandler);
+            timer.Interval = 1000/* ms */;
+            timer.Start();
 
             // レジストリから現在の設定を取得
             bool loadResult = true;
@@ -388,6 +390,10 @@ namespace PR_Manager
             }
         }
 
+        [DllImport("user32.dll")]
+        private static extern bool ClientToScreen(IntPtr hwnd, ref System.Drawing.Point lpPoint);
+        [DllImport("user32.dll")]
+        private static extern int MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, int bRepaint);
         /// <summary>
         /// フォームの入力内容をレジストリに反映します。
         /// </summary>
@@ -397,6 +403,20 @@ namespace PR_Manager
             if (!Load_Form())
             {
                 return;
+            }
+
+            // リアルタイムでの解像度変更が有効になっている場合
+            if (Properties.Settings.Default.ApplyInRunning)
+            {
+                // プリコネRが起動している場合
+                foreach (Process p in Process.GetProcessesByName(TargetAppName))
+                {
+                    // 現在のプリコネRのウインドウ位置を取得
+                    System.Drawing.Point point = default;
+                    ClientToScreen(p.MainWindowHandle, ref point);
+                    // ウインドウサイズを変更
+                    MoveWindow(p.MainWindowHandle, point.X, point.Y, intWidth + 16, intHeight + 39, 1);
+                }
             }
 
             RegistryKey key = Registry.CurrentUser.OpenSubKey(RegKey, true);
@@ -545,10 +565,12 @@ namespace PR_Manager
         {
             // テストしたいプログラムをここに入力
             /*
+            ダークモード実装の試みの残骸
             SolidColorBrush Dark = new SolidColorBrush(Color.FromArgb(255, 50, 50, 50));
             Background = Dark;
             MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
             */
+            // 管理者権限で再起動
             App app = (App)System.Windows.Application.Current;
             bool f = app.RunSelfAsAdmin();
 

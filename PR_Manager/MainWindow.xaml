@@ -75,7 +75,7 @@
                     <CheckBox Name="UseNative" Content="Native" Margin="15,14,0,0" VerticalAlignment="Top" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="7"/>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,15,0,0">
-                    <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" Checked="Fixass_Checked" Unchecked="Fixass_Unchecked" ToolTip="解像度の縦と横の比率を固定できます" TabIndex="8"/>
+                    <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" Checked="Fixass_Checked" Unchecked="Fixass_Unchecked" ToolTip="解像度の縦と横の比率を固定します" TabIndex="8"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
                         <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
                         <TextBox Name="AssW" Width="36" Height="20" MaxLength="4" KeyDown="Key_Judge" InputScope="Number" ToolTip="アスペクト比(横)を入力します" TabIndex="9"/>

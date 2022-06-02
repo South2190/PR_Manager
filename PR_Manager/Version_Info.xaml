@@ -22,7 +22,7 @@
             -->
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="バージョン" FontSize="15" Width="100" VerticalAlignment="Center"/>
-                <TextBlock Text="4.1.1.220205β" FontSize="15" Width="120" VerticalAlignment="Center"/>
+                <TextBlock Text="4.1.2.220602β" FontSize="15" Width="120" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="製作者" FontSize="15" Width="100" VerticalAlignment="Center"/>

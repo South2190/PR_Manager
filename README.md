@@ -31,7 +31,7 @@ DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじ�
 - OS:Windows7以降
 - .NET Framework 4.7.2以降インストール済[^2]
 - DMM GAMES版「プリンセスコネクト！Re:Dive」インストール済[^3]
-[^1]:[Windowsシステム要件に関するお知らせ | プリンセスコネクト！Re:Dive (プリコネR) 公式サイト | Cygames](https://priconne-redive.jp/news/information/10499/)
+[^1]:[推奨端末一覧に関するお知らせ【2022/10/31(月) 12:00 追記】 | プリンセスコネクト！Re:Dive (プリコネR) 公式サイト | Cygames](https://priconne-redive.jp/news/information/19600/)
 [^2]:こちらの要件に関してはあまり気にする必要はないと思います。
 [^3]:インストール無しでも起動できますが、主要機能のほとんどは利用できません。
 

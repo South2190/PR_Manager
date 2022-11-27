@@ -28,7 +28,7 @@ DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじ�
 
 ## 動作要件
 基本的にはDMM GAMES版「プリンセスコネクト！Re:Dive」の動作要件[^1]に準じますが、本ツール自体の動作要件は以下の通りになります。
-- OS:Windows7以降
+- OS:Windows10以降
 - .NET Framework 4.7.2以降インストール済[^2]
 - DMM GAMES版「プリンセスコネクト！Re:Dive」インストール済[^3]
 [^1]:[推奨端末一覧に関するお知らせ【2022/10/31(月) 12:00 追記】 | プリンセスコネクト！Re:Dive (プリコネR) 公式サイト | Cygames](https://priconne-redive.jp/news/information/19600/)

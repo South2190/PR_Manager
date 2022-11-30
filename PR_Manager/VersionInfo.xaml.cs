@@ -5,26 +5,19 @@ using System.Windows.Navigation;
 namespace PR_Manager
 {
     /// <summary>
-    /// Version_Info.xaml の相互作用ロジック
+    /// VersionInfo.xaml の相互作用ロジック
     /// </summary>
-    public partial class Version_Info : Window
+    public partial class VersionInfo : Window
     {
         /// <summary>
         /// バージョン情報を表示します
         /// </summary>
-        public Version_Info()
+        public VersionInfo()
         {
             InitializeComponent();
             ThisName.Text = MainWindow.ThisName;
+            Version.Text = MainWindow.Version;
             _ = OKButton.Focus();
-        }
-
-        /// <summary>
-        /// OKボタンがクリックされた場合にウインドウを閉じます
-        /// </summary>
-        private void Close_Popup(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
 
         /// <summary>

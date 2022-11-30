@@ -1,0 +1,38 @@
+﻿<Window x:Class="PR_Manager.OptionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PR_Manager"
+        mc:Ignorable="d"
+        Title="OptionWindow" Height="220" Width="510">
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" Margin="21,12,0,0" VerticalAlignment="Top">
+            <GroupBox Header="ゲーム起動中の左下ボタンの挙動" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="450">
+                <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <ComboBox Name="GameEndButton" HorizontalAlignment="Left" Height="25" Width="150">
+                        <ComboBoxItem Content="ボタンを無効化(既定)"/>
+                        <ComboBoxItem Content="ゲームを終了"/>
+                        <ComboBoxItem Content="ゲームを強制終了"/>
+                    </ComboBox>
+                    <TextBlock FontSize="12" Margin="0,7,0,0">
+                    ボタンを無効化(既定)...ボタンをグレーアウトします<LineBreak />
+                    ゲームを終了...ゲームに対して終了シグナルを送信します(管理者権限が必要です)<LineBreak />
+                    ゲームを強制終了...ゲームを強制的に終了させます
+                    </TextBlock>
+                </StackPanel>
+            </GroupBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Width" Value="80" />
+                        <Setter Property="Height" Value="23" />
+                        <Setter Property="Margin" Value="12,0,0,0" />
+                    </Style>
+                </StackPanel.Resources>
+                <Button Content="OK" Click="SaveSettings"/>
+                <Button Content="キャンセル" IsCancel="True"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

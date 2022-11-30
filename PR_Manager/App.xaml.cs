@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.Principal;
@@ -21,6 +23,8 @@ namespace PR_Manager
         }
         */
 
+        private readonly MainWindow mainWindow = new();
+
         private const string ResourceConfigFile = "PR_Manager.App.config";
         private const string ConfigFileName = "PR_Manager.exe.config";
 
@@ -42,7 +46,20 @@ namespace PR_Manager
                 File.WriteAllText(ConfigFileName, reader.ReadToEnd());
             }
 
-            if (PR_Manager.Properties.Settings.Default.RequireAdmin && !IsAdministrator())
+            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            Debug.WriteLine("設定ファイルの保存パス：" + appSettings.FilePath); // 設定ファイルの保存パス
+
+            // configファイルのバージョンが古い場合は更新する
+            if (!PR_Manager.Properties.Settings.Default.IsUpgraded)
+            {
+                PR_Manager.Properties.Settings.Default.Upgrade();
+                PR_Manager.Properties.Settings.Default.IsUpgraded = true;
+                PR_Manager.Properties.Settings.Default.Save();
+                Debug.WriteLine("Upgraded");
+            }
+
+            // 管理者権限での起動が指定されている場合は管理者権限で再起動
+            if (ConfigurationManager.AppSettings["RequireAdmin"] == "True" && !IsAdministrator())
             {
                 _ = RunSelfAsAdmin();
                 Shutdown();
@@ -50,8 +67,16 @@ namespace PR_Manager
             }
 
             // メインウインドウを呼び出す
-            MainWindow window = new();
-            window.Show();
+            mainWindow.Show();
+        }
+
+        /// <summary>
+        /// ツール終了時のイベント
+        /// </summary>
+        protected override void OnExit(ExitEventArgs e)
+        {
+            mainWindow.SaveCurrentSettings();
+            base.OnExit(e);
         }
 
         /// <summary>
@@ -82,7 +107,9 @@ namespace PR_Manager
         /// <summary>
         /// ツールに管理者権限があるかどうかを調べます
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// 管理者権限がある場合は(True)、そうでない場合は(False)を返します
+        /// </returns>
         private bool IsAdministrator()
         {
             WindowsIdentity identity = WindowsIdentity.GetCurrent();

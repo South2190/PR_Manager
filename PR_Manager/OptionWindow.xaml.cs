@@ -7,15 +7,32 @@ namespace PR_Manager
     /// </summary>
     public partial class OptionWindow : Window
     {
+        private int GameEndButtonCache;
         public OptionWindow()
         {
             InitializeComponent();
-            GameEndButton.SelectedIndex = Properties.Settings.Default.GameEndButton switch
+            GameEndButtonCache = Properties.Settings.Default.GameEndButton switch
             {
                 "SendSignal" => 1,
                 "TaskKill" => 2,
                 _ => 0,
             };
+            GameEndButton.SelectedIndex = GameEndButtonCache;
+        }
+
+        /// <summary>
+        /// 選択された値によってOKボタンの有効・無効を切り替えます
+        /// </summary>
+        private void ControlOKButton(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (GameEndButton.SelectedIndex == GameEndButtonCache)
+            {
+                OKButton.IsEnabled = false;
+            }
+            else
+            {
+                OKButton.IsEnabled = true;
+            }
         }
 
         /// <summary>

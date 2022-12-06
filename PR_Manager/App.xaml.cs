@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.Win32;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -33,7 +33,20 @@ namespace PR_Manager
         /// </summary>
         protected override void OnStartup(StartupEventArgs e)
         {
+            // レジストリの存在確認
+            string RegKey = ConfigurationManager.AppSettings["RegKey"] ?? @"Software\Cygames\PrincessConnectReDive";
+
+            RegistryKey Load = Registry.CurrentUser.OpenSubKey(RegKey);
+
+            // レジストリが存在しない場合起動を中止する
+            if (Load == null)
+            {
+                _ = MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+            }
+
             // configファイルの存在確認
+            // 存在しない場合は作成する
             if (!File.Exists(ConfigFileName))
             {
                 // 現在実行しているアセンブリを取得
@@ -63,11 +76,12 @@ namespace PR_Manager
             {
                 _ = RunSelfAsAdmin();
                 Shutdown();
-                return;
             }
 
             // メインウインドウを呼び出す
-            mainWindow.Show();
+            // グローバル"mainWindow"からは絶対に呼び出さないこと
+            MainWindow window = new();
+            window.Show();
         }
 
         /// <summary>

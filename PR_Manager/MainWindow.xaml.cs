@@ -37,7 +37,7 @@ namespace PR_Manager
         public static readonly string ThisName = "PR_Manager";
 #endif
         // バージョン
-        public static readonly string Version = "4.1.3.220602β";
+        public static readonly string Version = "4.2.0.220602β";
 
         // ツールの設定ファイル名
         //public static readonly string ConfigFileName = "PR_Manager.exe.config";
@@ -171,10 +171,10 @@ namespace PR_Manager
                 selMonitor.IsEnabled = false;
             }
 
-            startButton.Content = "ゲームを起動";
-
             //LoadLasttimeSettings();
             LoadKey();
+            ChangeButton();
+            timer.Start();
         }
 
         /*
@@ -239,6 +239,8 @@ namespace PR_Manager
                         {
                             startButton.IsEnabled = false;
                         }
+                        startButton.Content = "ゲームを起動";
+                        startButton.ToolTip = "ゲームを起動します";
                         break;
                 }
             }
@@ -251,7 +253,7 @@ namespace PR_Manager
         {
             WidthBox.Text               = Properties.Settings.Default.Width;
             HeightBox.Text              = Properties.Settings.Default.Height;
-            UseNative.IsEnabled         = Properties.Settings.Default.AllowNative;
+            UseNative.IsChecked         = Properties.Settings.Default.AllowNative;
             selMonitor.SelectedIndex    = Properties.Settings.Default.ChooseMonitor;
             AllowFixedass.IsChecked     = Properties.Settings.Default.AllowFix;
             AssW.Text                   = Properties.Settings.Default.AspectW;
@@ -323,17 +325,6 @@ namespace PR_Manager
                 applyButton.IsEnabled = false;
                 _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            }
-
-            // ボタンを有効化
-            startButton.IsEnabled = true;
-            applyButton.IsEnabled = true;
-
-            ChangeButton();
-
-            if (!timer.Enabled)
-            {
-                timer.Start();
             }
 
             // レジストリから現在の設定を取得

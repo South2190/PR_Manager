@@ -22,11 +22,7 @@
                 <MenuItem Header="現在の設定をレジストリから読み込む" Click="LoadSettings"/>
                 <MenuItem Header="公式の既定値を読み込む" Click="LoadDefault"/>
             </MenuItem>
-            <!--
-            <MenuItem Header="エクスポート(_E)" TabIndex="1">
-            </MenuItem>
-            -->
-            <MenuItem Header="その他(_O)" TabIndex="3">
+            <MenuItem Header="その他(_O)" TabIndex="1">
                 <MenuItem Header="オプション(_O)..." Click="ShowOptionWindow"/>
                 <Separator/>
                 <MenuItem Header="テストボタン(_T)" Click="TestProgram" Visibility="{x:Static local:MainWindow.IsDebugVisible}"/>
@@ -36,63 +32,49 @@
             </MenuItem>
         </Menu>
         <GroupBox Header="モード選択" HorizontalAlignment="Left" Height="80" Margin="25,30,0,0" VerticalAlignment="Top" Width="230">
-            <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top">
+            <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
                 <StackPanel.Resources>
-                    <Style TargetType="{x:Type StackPanel}">
-                        <Setter Property="Margin" Value="0,7,0,0"/>
+                    <Style TargetType="{x:Type RadioButton}">
+                        <Setter Property="Margin" Value="0,4,0,3"/>
                     </Style>
                 </StackPanel.Resources>
-                <StackPanel>
-                    <RadioButton Name="ModeW" Content="ウインドウ" GroupName="mode" Checked="WindowRadioChecked" ToolTip="ウインドウモードで起動します" TabIndex="4"/>
-                </StackPanel>
-                <StackPanel>
-                    <RadioButton Name="ModeF" Content="フルスクリーン" GroupName="mode" Checked="FullscreenRadioChecked" ToolTip="フルスクリーンモードで起動します(Alt+F4で終了)" TabIndex="5"/>
-                </StackPanel>
+                <RadioButton Name="ModeW" Content="ウインドウ" GroupName="mode" Checked="WindowRadioChecked" ToolTip="ウインドウモードで起動します" TabIndex="2"/>
+                <RadioButton Name="ModeF" Content="フルスクリーン" GroupName="mode" Checked="FullscreenRadioChecked" ToolTip="フルスクリーンモードで起動します(Alt+F4で終了)" TabIndex="3"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="解像度" HorizontalAlignment="Left" Height="135" Margin="25,120,0,0" VerticalAlignment="Top" Width="230">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <!--
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type StackPanel}">
-                        <Setter Property="Margin" Value="0,3,0,0"/>
-                    </Style>
-                    <Style TargetType="{x:Type CheckBox}">
-                        <Setter Property="Margin" Value="0,4,0,0"/>
-                    </Style>
-                </StackPanel.Resources>
-                -->
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                            <TextBox Name="WidthBox" Width="45" Height="20" MaxLength="5" KeyDown="KeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="6"/>
+                            <TextBox Name="WidthBox" Width="45" Height="20" MaxLength="5" KeyDown="KeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4"/>
                             <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                             <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                            <TextBox Name="HeightBox" Width="45" Height="20" MaxLength="5" KeyDown="KeyJudge" TextChanged="FixassH" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(横)を指定します" TabIndex="7"/>
+                            <TextBox Name="HeightBox" Width="45" Height="20" MaxLength="5" KeyDown="KeyJudge" TextChanged="FixassH" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(横)を指定します" TabIndex="5"/>
                             <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
                         </StackPanel>
                     </StackPanel>
-                    <CheckBox Name="UseNative" Content="自動設定" Margin="15,14,0,0" VerticalAlignment="Top" Checked="UseNativeChecked" Unchecked="UseNativeUnchecked" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="8"/>
+                    <CheckBox Name="UseNative" Content="自動設定" Margin="15,14,0,0" VerticalAlignment="Top" Checked="UseNativeChecked" Unchecked="UseNativeUnchecked" ToolTip="フルスクリーン時に解像度を自動設定します" TabIndex="6"/>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,15,0,0">
-                    <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" ToolTip="解像度の縦と横の比率を固定します" TabIndex="9"/>
+                    <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" ToolTip="解像度の縦と横の比率を固定します" TabIndex="7"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
                         <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                        <TextBox Name="AssW" Width="36" Height="20" MaxLength="4" KeyDown="KeyJudge" InputScope="Number" ToolTip="アスペクト比(横)を入力します" TabIndex="10"/>
+                        <TextBox Name="AssW" Width="36" Height="20" MaxLength="4" KeyDown="KeyJudge" InputScope="Number" ToolTip="アスペクト比(横)を入力します" TabIndex="8"/>
                         <TextBlock Text=":" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                        <TextBox Name="AssH" Width="36" Height="20" MaxLength="4" KeyDown="KeyJudge" InputScope="Number" ToolTip="アスペクト比(縦)を入力します" TabIndex="11"/>
+                        <TextBox Name="AssH" Width="36" Height="20" MaxLength="4" KeyDown="KeyJudge" InputScope="Number" ToolTip="アスペクト比(縦)を入力します" TabIndex="9"/>
                         <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="起動ディスプレイ選択" HorizontalAlignment="Left" Height="75" Margin="25,265,0,0" VerticalAlignment="Top" Width="230">
-            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="12"/>
+            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="10"/>
         </GroupBox>
-        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,360,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="RunPriconner" TabIndex="14"/>
-        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,360,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="RewriteReg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="13"/>
+        <Button Name="startButton" HorizontalAlignment="Left" Margin="30,360,0,0" VerticalAlignment="Top" Width="135" Height="22" Click="RunPriconner" TabIndex="12"/>
+        <Button Name="applyButton" Content="適用" HorizontalAlignment="Left" Margin="180,360,0,0" VerticalAlignment="Top" Width="70" Height="22" Click="RewriteReg" ToolTip="現在の入力内容をレジストリに書き込みます" TabIndex="11"/>
     </Grid>
 </Window>

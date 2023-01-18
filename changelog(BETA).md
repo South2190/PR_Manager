@@ -102,4 +102,4 @@
 
 ***
 
-これ以降の更新履歴については、[changelog.md](https://github.com/South2190/PR_Manager/blob/main/changelog.md)を参照してください。
+これ以降の更新履歴については、[changelog.md](changelog.md)を参照してください。

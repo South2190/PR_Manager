@@ -1,7 +1,7 @@
 # PR_Manager
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/South2190/PR_Manager)](https://github.com/South2190/PR_Manager/releases)
-[![](https://img.shields.io/badge/-changelog-green)](https://github.com/South2190/PR_Manager/blob/main/changelog.md)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/South2190/PR_Manager)](../../releases)
+[![](https://img.shields.io/badge/-changelog-green)](changelog.md)
 
 DMM GAMES版「プリンセスコネクト！Re:Dive」の解像度等をいじれるツール。
 

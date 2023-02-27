@@ -7,32 +7,48 @@ namespace PR_Manager
     /// </summary>
     public partial class OptionWindow : Window
     {
-        private int GameEndButtonCache;
+        private int GameEndButtonCache, ImportInStartingCache;
         public OptionWindow()
         {
             InitializeComponent();
+            ImportInStartingCache = Properties.Settings.Default.ImportInStarting switch
+            {
+                "LasttimeEnded" => 0,
+                "Registry" => 1,
+                "DefaultValue" => 2,
+                _ => -1     // 想定外の値の場合は未選択状態にする
+            };
+            ImportInStarting.SelectedIndex = ImportInStartingCache;
             GameEndButtonCache = Properties.Settings.Default.GameEndButton switch
             {
+                "Disabled" => 0,
                 "SendSignal" => 1,
                 "TaskKill" => 2,
-                _ => 0,
+                _ => -1     // 想定外の値の場合は未選択状態にする
             };
             GameEndButton.SelectedIndex = GameEndButtonCache;
         }
 
         /// <summary>
-        /// 選択された値によってOKボタンの有効・無効を切り替えます
+        /// コンボボックスの値が変更された際にフォームの表示内容を変更します
         /// </summary>
-        private void ControlOKButton(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ControlForm(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (GameEndButton.SelectedIndex == GameEndButtonCache)
+            ImportInStartingExp.Text = "説明：" + ImportInStarting.SelectedIndex switch
             {
-                OKButton.IsEnabled = false;
-            }
-            else
+                0 => "前回のツール終了時にフォームへ入力されていた内容を読み込みます",
+                1 => "設定されている内容をレジストリから読み込みます",
+                2 => "ゲーム側の初期設定を読み込みます",
+                _ => ""
+            };
+            GameEndButtonExp.Text = "説明：" + GameEndButton.SelectedIndex switch
             {
-                OKButton.IsEnabled = true;
-            }
+                0 => "ボタンをグレーアウトします",
+                1 => "ゲームに対して終了シグナルを送信します(管理者権限が必要です)",
+                2 => "ゲームを強制的に終了させます",
+                _ => ""
+            };
+            OKButton.IsEnabled = ImportInStarting.SelectedIndex != ImportInStartingCache || GameEndButton.SelectedIndex != GameEndButtonCache;
         }
 
         /// <summary>
@@ -40,6 +56,12 @@ namespace PR_Manager
         /// </summary>
         private void SaveSettings(object sender, RoutedEventArgs e)
         {
+            Properties.Settings.Default.ImportInStarting = ImportInStarting.SelectedIndex switch
+            {
+                1 => "Registry",
+                2 => "DefaultValue",
+                _ => "LasttimeEnded"
+            };
             Properties.Settings.Default.GameEndButton = GameEndButton.SelectedIndex switch
             {
                 1 => "SendSignal",

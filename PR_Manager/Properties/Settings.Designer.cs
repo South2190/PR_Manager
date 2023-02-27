@@ -37,18 +37,6 @@ namespace PR_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int WindowMode {
-            get {
-                return ((int)(this["WindowMode"]));
-            }
-            set {
-                this["WindowMode"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1280")]
         public string Width {
             get {
@@ -145,13 +133,25 @@ namespace PR_Manager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("LasttimeEnded")]
         public string ImportInStarting {
             get {
                 return ((string)(this["ImportInStarting"]));
             }
             set {
                 this["ImportInStarting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int WindowMode {
+            get {
+                return ((int)(this["WindowMode"]));
+            }
+            set {
+                this["WindowMode"] = value;
             }
         }
     }

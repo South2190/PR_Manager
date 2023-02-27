@@ -6,7 +6,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="WindowMode" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="Width" Type="System.String" Scope="User">
       <Value Profile="(Default)">1280</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">Disabled</Value>
     </Setting>
     <Setting Name="ImportInStarting" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">LasttimeEnded</Value>
     </Setting>
   </Settings>
 </SettingsFile>

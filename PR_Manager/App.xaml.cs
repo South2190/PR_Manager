@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.Principal;
 using System.Windows;
+using System.Windows.Resources;
 
 namespace PR_Manager
 {
@@ -13,27 +15,165 @@ namespace PR_Manager
     /// </summary>
     public partial class App : Application
     {
-        /*
         [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
-        public static extern bool AttachConsole(int processId);
+        public static extern int AttachConsole(int processId);
 
-        static App()
-        {
-            AttachConsole(-1);
-        }
-        */
-
-        private readonly MainWindow mainWindow = new();
-
-        private const string ResourceConfigFile = "PR_Manager.App.config";
+        //private const string ResourceConfigFile = "PR_Manager.App.config";
         private const string ConfigFileName = "PR_Manager.exe.config";
 
         /// <summary>
         /// ツール起動時のイベント
         /// </summary>
+        [STAThread]
         protected override void OnStartup(StartupEventArgs e)
         {
-            // レジストリの存在確認
+            // 各引数の設定
+            bool AllowStart = true;         // ツールの通常起動を許可するか
+            bool AllowOtherArgs = true;     // 他の引数の実行を許可するか
+
+            bool BypassRegistryCheck = false;
+
+            // 引数の読み込み
+            for (int i = 0; i < e.Args.Length; i++)
+            {
+                // 引数を受け取る
+                Debug.WriteLine("取得した引数：" + e.Args[i]);
+                switch (e.Args[i])
+                {
+                    // exe.configの再生成(ここでは削除のみ)
+                    case "--execonfig-regeneration":
+                        if (File.Exists(ConfigFileName))
+                        {
+                            File.Delete(ConfigFileName);
+                        }
+                        break;
+                    // レジストリチェックを行わずに起動
+                    case "--registrycheck-bypass":
+                        BypassRegistryCheck = true;
+                        break;
+                    // user.configの削除
+                    case "--userconfig-delete":
+                    case "--userconfig-delete-currentonly":
+                        if (i == 0) {
+                            //string UserConfigPath = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager";
+                            string UserConfigPath = e.Args[i] switch
+                            {
+                                "--userconfig-delete" => Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager",
+                                "--userconfig-delete-currentonly" => "kari",
+                                _ => null
+                            };
+                            if (Directory.Exists(UserConfigPath))
+                            {
+                                Directory.Delete(UserConfigPath);
+                                ShowMessage("user.configを削除しました。", MessageBoxImage.Asterisk);
+                            }
+                            else
+                            {
+                                ShowMessage("削除できるuser.configが見つかりませんでした。", MessageBoxImage.Error);
+                            }
+                            AllowStart = false;
+                            AllowOtherArgs = false;
+                        }
+                        break;
+                    // 現在のuser.configのみ削除
+                    // バージョン情報を表示
+                    case "-v":
+                    case "--version":
+                        if (i == 0)
+                        {
+                            VersionInfo versionInfo = new();
+                            _ = versionInfo.ShowDialog();
+                            AllowStart = false;
+                            AllowOtherArgs = false;
+                        }
+                        break;
+                    // ヘルプを表示
+                    case "-h":
+                    case "--help":
+                        if (i == 0) {
+                            string HelpArgsTxt;
+                            StreamResourceInfo info = GetResourceStream(new Uri("/HelpArgs.txt", UriKind.Relative));
+                            using (StreamReader sr = new(info.Stream))
+                            {
+                                HelpArgsTxt = sr.ReadToEnd();
+                            }
+
+                            ShowMessage(HelpArgsTxt, MessageBoxImage.Asterisk);
+                            AllowStart = false;
+                            AllowOtherArgs = false;
+                        }
+                        break;
+                    // その他の引数はすべて無視
+                    default:
+                        break;
+                }
+
+                if (!AllowOtherArgs)
+                {
+                    break;
+                }
+            }
+
+            // 引数が指定されなかった場合通常起動する
+            if (AllowStart)
+            {
+                if (!BypassRegistryCheck)
+                {
+                    CheckRegistry();
+                }
+                ReadytoStart();
+            }
+            else
+            {
+                Shutdown();
+            }
+        }
+
+        /*
+        /// <summary>
+        /// ツール終了時のイベント
+        /// </summary>
+        protected override void OnExit(ExitEventArgs e)
+        {
+        }
+        */
+
+        /// <summary>
+        /// メッセージを表示します。
+        /// コンソールが利用可能な場合はコンソールに出力、そうでなければメッセージボックスで表示します。
+        /// </summary>
+        public void ShowMessage(string message = null, MessageBoxImage messageboximage = MessageBoxImage.None)
+        {
+            if (AttachConsole(-1) == 0)
+            {
+                _ = MessageBox.Show(message, "PR_Manager", MessageBoxButton.OK, messageboximage);
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+        }
+
+        public string GetUserSettingsPath()
+        {
+            string filepath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            string[] split = filepath.Split('\\');
+            string result = null;
+
+            foreach (string s in split)
+            {
+                result += s + '¥';
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// レジストリが存在するかどうかを確認します。
+        /// 存在しない場合はエラーメッセージを表示した上で終了コード(-1)で終了します。
+        /// </summary>
+        public void CheckRegistry()
+        {
             string RegKey = ConfigurationManager.AppSettings["RegKey"] ?? @"Software\Cygames\PrincessConnectReDive";
 
             RegistryKey Load = Registry.CurrentUser.OpenSubKey(RegKey);
@@ -41,14 +181,22 @@ namespace PR_Manager
             // レジストリが存在しない場合起動を中止する
             if (Load == null)
             {
-                _ = MessageBox.Show("レジストリキーが見つかりませんでした。プリンセスコネクト！Re:Diveがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
-                Shutdown();
+                _ = MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(-1);
             }
+        }
 
+        /// <summary>
+        /// ツールを起動します。
+        /// ツールの起動準備をしてからメインウインドウを呼び出します。
+        /// </summary>
+        public void ReadytoStart()
+        {
             // configファイルの存在確認
             // 存在しない場合は作成する
             if (!File.Exists(ConfigFileName))
             {
+                /*
                 // 現在実行しているアセンブリを取得
                 Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -57,25 +205,27 @@ namespace PR_Manager
 
                 // 外部configファイルに出力する
                 File.WriteAllText(ConfigFileName, reader.ReadToEnd());
+                */
+                string ReadConfigFile;
+                StreamResourceInfo info = GetResourceStream(new Uri("/App.config", UriKind.Relative));
+                using (StreamReader sr = new(info.Stream))
+                {
+                    ReadConfigFile = sr.ReadToEnd();
+                }
+                File.WriteAllText(ConfigFileName, ReadConfigFile);
             }
 
-            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-            Debug.WriteLine("設定ファイルの保存パス：" + appSettings.FilePath); // 設定ファイルの保存パス
-
-            // configファイルのバージョンが古い場合は更新する
-            if (!PR_Manager.Properties.Settings.Default.IsUpgraded)
+            if (Environment.Is64BitProcess)
             {
-                PR_Manager.Properties.Settings.Default.Upgrade();
-                PR_Manager.Properties.Settings.Default.IsUpgraded = true;
-                PR_Manager.Properties.Settings.Default.Save();
-                Debug.WriteLine("Upgraded");
+                Debug.WriteLine("64ビットで動作しています");
             }
+            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            Debug.WriteLine("設定ファイルの保存パス：" + appSettings.HasFile); // 設定ファイルの保存パス
 
             // 管理者権限での起動が指定されている場合は管理者権限で再起動
             if (ConfigurationManager.AppSettings["RequireAdmin"] == "True" && !IsAdministrator())
             {
-                _ = RunSelfAsAdmin();
-                Shutdown();
+                Shutdown(RunSelfAsAdmin());
             }
 
             // メインウインドウを呼び出す
@@ -85,18 +235,12 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// ツール終了時のイベント
-        /// </summary>
-        protected override void OnExit(ExitEventArgs e)
-        {
-            mainWindow.SaveCurrentSettings();
-            base.OnExit(e);
-        }
-
-        /// <summary>
         /// ツールを管理者権限で再起動します
         /// </summary>
-        public bool RunSelfAsAdmin()
+        /// <returns>
+        /// 成功した場合(0)、失敗した場合(-1)を返します
+        /// </returns>
+        public int RunSelfAsAdmin()
         {
             Assembly assembly = Assembly.GetEntryAssembly();
             ProcessStartInfo startInfo = new(assembly.Location)
@@ -112,10 +256,10 @@ namespace PR_Manager
             // ユーザーが「いいえ」を選択した場合処理を中断
             catch
             {
-                return false;
+                return -1;
             }
 
-            return true;
+            return 0;
         }
 
         /// <summary>

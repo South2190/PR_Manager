@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         FontFamily="Meiryo"
         Height="442" Width="297"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        Closing="MainWindow_Closing">
     <!--
     <Window.Resources>
         <Style TargetType="{x:Type Control}" x:Key="Light">
@@ -18,15 +19,16 @@
     <Grid>
         <Menu Name="MenuBar" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="295">
             <MenuItem Header="インポート(_I)" TabIndex="0">
-                <MenuItem Header="前回終了時の入力内容を読み込む" Click="LoadLasttime"/>
-                <MenuItem Header="現在の設定をレジストリから読み込む" Click="LoadSettings"/>
-                <MenuItem Header="公式の既定値を読み込む" Click="LoadDefault"/>
+                <MenuItem Header="前回終了時の入力内容を読み込む" Click="LoadLasttimeEnded_"/>
+                <MenuItem Header="レジストリから現在の設定を読み込む" Click="LoadRegistry_"/>
+                <MenuItem Header="初期設定値を読み込む" Click="LoadDefault_"/>
+            </MenuItem>
+            <MenuItem Header="デバッグ(_D)" Visibility="{x:Static local:MainWindow.IsDebugVisible}">
+                <MenuItem Header="テストボタン(_T)" Click="TestProgram" />
             </MenuItem>
             <MenuItem Header="その他(_O)" TabIndex="1">
                 <MenuItem Header="オプション(_O)..." Click="ShowOptionWindow"/>
                 <Separator/>
-                <MenuItem Header="テストボタン(_T)" Click="TestProgram" Visibility="{x:Static local:MainWindow.IsDebugVisible}"/>
-                <Separator Visibility="{x:Static local:MainWindow.IsDebugVisible}"/>
                 <MenuItem Header="バージョン情報(_A)..." Click="VersionInfo"/>
                 <MenuItem Header="終了(_X)" Click="ThisExit"/>
             </MenuItem>

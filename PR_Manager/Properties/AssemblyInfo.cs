@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PR_Manager")]
 [assembly: AssemblyProduct("PR_Manager")]
-[assembly: AssemblyCopyright("Copyright © 2022 SHELL")]
+[assembly: AssemblyCopyright("Copyright © 2023 SHELL")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

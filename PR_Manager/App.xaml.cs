@@ -4,7 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Resources;
 
@@ -18,7 +18,6 @@ namespace PR_Manager
         [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
         public static extern int AttachConsole(int processId);
 
-        //private const string ResourceConfigFile = "PR_Manager.App.config";
         private const string ConfigFileName = "PR_Manager.exe.config";
 
         /// <summary>
@@ -27,6 +26,9 @@ namespace PR_Manager
         [STAThread]
         protected override void OnStartup(StartupEventArgs e)
         {
+            // カレントディレクトリの設定
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+
             // 各引数の設定
             bool AllowStart = true;         // ツールの通常起動を許可するか
             bool AllowOtherArgs = true;     // 他の引数の実行を許可するか
@@ -40,36 +42,28 @@ namespace PR_Manager
                 Debug.WriteLine("取得した引数：" + e.Args[i]);
                 switch (e.Args[i])
                 {
-                    // exe.configの再生成(ここでは削除のみ)
-                    case "--execonfig-regeneration":
-                        if (File.Exists(ConfigFileName))
-                        {
-                            File.Delete(ConfigFileName);
-                        }
-                        break;
                     // レジストリチェックを行わずに起動
                     case "--registrycheck-bypass":
                         BypassRegistryCheck = true;
                         break;
                     // user.configの削除
                     case "--userconfig-delete":
-                    case "--userconfig-delete-currentonly":
+                    case "--userconfig-delete-current":
                         if (i == 0) {
-                            //string UserConfigPath = Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager";
                             string UserConfigPath = e.Args[i] switch
                             {
                                 "--userconfig-delete" => Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager",
-                                "--userconfig-delete-currentonly" => "kari",
+                                "--userconfig-delete-current" => GetUserSettingsPath(),
                                 _ => null
                             };
                             if (Directory.Exists(UserConfigPath))
                             {
-                                Directory.Delete(UserConfigPath);
-                                ShowMessage("user.configを削除しました。", MessageBoxImage.Asterisk);
+                                Directory.Delete(UserConfigPath, true);
+                                ShowMessage("設定ファイルを削除しました。", MessageBoxImage.Asterisk);
                             }
                             else
                             {
-                                ShowMessage("削除できるuser.configが見つかりませんでした。", MessageBoxImage.Error);
+                                ShowMessage("削除できる設定ファイルが見つかりませんでした。", MessageBoxImage.Error);
                             }
                             AllowStart = false;
                             AllowOtherArgs = false;
@@ -117,6 +111,7 @@ namespace PR_Manager
             // 引数が指定されなかった場合通常起動する
             if (AllowStart)
             {
+                CheckExeConfigFile();
                 if (!BypassRegistryCheck)
                 {
                     CheckRegistry();
@@ -129,14 +124,32 @@ namespace PR_Manager
             }
         }
 
-        /*
         /// <summary>
-        /// ツール終了時のイベント
+        /// ツールを起動します。
+        /// ツールの起動準備をしてからメインウインドウを呼び出します。
         /// </summary>
-        protected override void OnExit(ExitEventArgs e)
+        public void ReadytoStart()
         {
+#if DEBUG
+            if (Environment.Is64BitProcess)
+            {
+                Debug.WriteLine("64ビットで動作しています");
+            }
+            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            Debug.WriteLine("設定ファイルの存在：" + appSettings.HasFile); // 設定ファイルの存在確認
+            Debug.WriteLine(appSettings.FilePath); // 設定ファイルの保存パス
+            Debug.WriteLine(GetUserSettingsPath());
+            Debug.WriteLine(Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager");
+            Debug.WriteLine(Assembly.GetEntryAssembly().Location);
+            Debug.WriteLine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            Debug.WriteLine(Assembly.GetExecutingAssembly().Location);
+#endif
+
+            // メインウインドウを呼び出す
+            // グローバル"mainWindow"からは絶対に呼び出さないこと
+            MainWindow window = new();
+            window.Show();
         }
-        */
 
         /// <summary>
         /// メッセージを表示します。
@@ -154,6 +167,10 @@ namespace PR_Manager
             }
         }
 
+        /// <summary>
+        /// 現在の実行ファイルが使用しているUserConfigフォルダの場所を取得します。
+        /// </summary>
+        /// <returns>UserConfigフォルダの場所を絶対パスで返します。</returns>
         public string GetUserSettingsPath()
         {
             string filepath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
@@ -162,10 +179,43 @@ namespace PR_Manager
 
             foreach (string s in split)
             {
-                result += s + '¥';
+                result += s;
+                if (Regex.IsMatch(s, @"^PR_Manager\.exe_Url_"))
+                {
+                    break;
+                }
+                else
+                {
+                    result += '\\';
+                }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// PR_Manager.exe.configファイルの存在を確認します
+        /// 存在しない場合は作成します
+        /// </summary>
+        public void CheckExeConfigFile()
+        {
+            if (!File.Exists(ConfigFileName))
+            {
+                string ReadConfigFile;
+                StreamResourceInfo info = GetResourceStream(new Uri("/App.config", UriKind.Relative));
+                using (StreamReader sr = new(info.Stream))
+                {
+                    ReadConfigFile = sr.ReadToEnd();
+                }
+                File.WriteAllText(ConfigFileName, ReadConfigFile);
+
+                // configファイルを新たに作成した際、user.configが存在するとフリーズしてしまうので再起動する
+                if (Directory.Exists(GetUserSettingsPath()))
+                {
+                    _ = Process.Start(Assembly.GetEntryAssembly().Location);
+                    Shutdown();
+                }
+            }
         }
 
         /// <summary>
@@ -184,95 +234,6 @@ namespace PR_Manager
                 _ = MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown(-1);
             }
-        }
-
-        /// <summary>
-        /// ツールを起動します。
-        /// ツールの起動準備をしてからメインウインドウを呼び出します。
-        /// </summary>
-        public void ReadytoStart()
-        {
-            // configファイルの存在確認
-            // 存在しない場合は作成する
-            if (!File.Exists(ConfigFileName))
-            {
-                /*
-                // 現在実行しているアセンブリを取得
-                Assembly assembly = Assembly.GetExecutingAssembly();
-
-                // リソース"App.config"を取得
-                StreamReader reader = new(assembly.GetManifestResourceStream(ResourceConfigFile));
-
-                // 外部configファイルに出力する
-                File.WriteAllText(ConfigFileName, reader.ReadToEnd());
-                */
-                string ReadConfigFile;
-                StreamResourceInfo info = GetResourceStream(new Uri("/App.config", UriKind.Relative));
-                using (StreamReader sr = new(info.Stream))
-                {
-                    ReadConfigFile = sr.ReadToEnd();
-                }
-                File.WriteAllText(ConfigFileName, ReadConfigFile);
-            }
-
-            if (Environment.Is64BitProcess)
-            {
-                Debug.WriteLine("64ビットで動作しています");
-            }
-            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-            Debug.WriteLine("設定ファイルの保存パス：" + appSettings.HasFile); // 設定ファイルの保存パス
-
-            // 管理者権限での起動が指定されている場合は管理者権限で再起動
-            if (ConfigurationManager.AppSettings["RequireAdmin"] == "True" && !IsAdministrator())
-            {
-                Shutdown(RunSelfAsAdmin());
-            }
-
-            // メインウインドウを呼び出す
-            // グローバル"mainWindow"からは絶対に呼び出さないこと
-            MainWindow window = new();
-            window.Show();
-        }
-
-        /// <summary>
-        /// ツールを管理者権限で再起動します
-        /// </summary>
-        /// <returns>
-        /// 成功した場合(0)、失敗した場合(-1)を返します
-        /// </returns>
-        public int RunSelfAsAdmin()
-        {
-            Assembly assembly = Assembly.GetEntryAssembly();
-            ProcessStartInfo startInfo = new(assembly.Location)
-            {
-                UseShellExecute = true,
-                Verb = "runas",
-            };
-
-            try
-            {
-                _ = Process.Start(startInfo);
-            }
-            // ユーザーが「いいえ」を選択した場合処理を中断
-            catch
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-
-        /// <summary>
-        /// ツールに管理者権限があるかどうかを調べます
-        /// </summary>
-        /// <returns>
-        /// 管理者権限がある場合は(True)、そうでない場合は(False)を返します
-        /// </returns>
-        private bool IsAdministrator()
-        {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
     }
 }

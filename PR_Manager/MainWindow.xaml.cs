@@ -38,7 +38,7 @@ namespace PR_Manager
         public static readonly string ThisName = "PR_Manager";
 #endif
         // バージョン
-        public static readonly string Version = "1.1.0.230209-rc1";
+        public static readonly string Version = "1.0.1.230518";
         //public static readonly string AssemblyVersion = "1.0.0";
 
         // ツールの設定ファイル名
@@ -101,7 +101,25 @@ namespace PR_Manager
         {
             Title = ThisName;
 
+            /*
             // configファイルのバージョンが古い場合は更新する
+            // 起動時フリーズすることがあるバグの原因はたぶんここ
+            try
+            {
+                if (!Properties.Settings.Default.IsUpgraded)
+                {
+                    Properties.Settings.Default.Upgrade();
+                    Properties.Settings.Default.IsUpgraded = true;
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (ConfigurationErrorsException)
+            {
+                //_ = System.Windows.MessageBox.Show("例外がスローされました。", ThisName, MessageBoxButton.OK);
+                //System.Windows.Forms.Application.Restart();
+                Environment.Exit(-1);
+            }
+            */
             if (!Properties.Settings.Default.IsUpgraded)
             {
                 Properties.Settings.Default.Upgrade();
@@ -756,14 +774,7 @@ namespace PR_Manager
             Background = Dark;
             MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
             */
-            // 管理者権限で再起動
-            App app = (App)System.Windows.Application.Current;
-            int f = app.RunSelfAsAdmin();
-
-            if (f == 0)
-            {
-                Close();
-            }
+            System.Windows.Forms.Application.Restart();
         }
 
         /// <summary>

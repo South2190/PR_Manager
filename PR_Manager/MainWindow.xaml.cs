@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -38,38 +37,37 @@ namespace PR_Manager
         public static readonly string ThisName = "PR_Manager";
 #endif
         // バージョン
-        public static readonly string Version = "1.0.1.230518";
+        public static readonly string Version = "1.1.0.230722";
         //public static readonly string AssemblyVersion = "1.0.0";
-
-        // ツールの設定ファイル名
-        //public static readonly string ConfigFileName = "PR_Manager.exe.config";
         // --------------------------------------------------------
 
         // グローバル変数の宣言
         // ゲーム起動URI
-        public string GameStartupUri;
-        public string GameStartupUriArgs;
+        public static readonly string GameStartupUri        = ConfigurationManager.AppSettings["GameStartupUri"]        ?? "dmmgameplayer://play/GCL/priconner/cl/win";
+        public static readonly string GameStartupUriArgs    = ConfigurationManager.AppSettings["GameStartupUriArgs"]    ?? string.Empty;
         // ゲーム実行ファイルの名前
-        public string TargetAppName;
-        // レジストリキーのパス
-        public string RegKey;
-        // レジストリ値の名前
-        public string intWidthKey;          // 横解像度
-        public string intHeightKey;         // 縦解像度
-        public string fullScreenKey;        // ウインドウまたはフルスクリーンモード
-        public string allowNativeKey;       // ネイティブ
-        public string chooseMonitorKey;     // モニタ選択
+        public static readonly string TargetAppName         = ConfigurationManager.AppSettings["TargetAppName"]         ?? "PrincessConnectReDive";
 
         public int intWidth;
         public int intHeight;
         public int fullScreen;
         public int chooseMonitor;
         public int allowNative;
-        public bool WidthFocus;
-        public bool HeightFocus;
+        public bool WidthFocus = false;
+        public bool HeightFocus = false;
 
         // タイマーの宣言
         public readonly Timer timer = new();
+
+        private static readonly ControlRegistry ctrlreg = new()
+        {
+            RegKey              = ConfigurationManager.AppSettings["RegKey"]                ?? @"Software\Cygames\PrincessConnectReDive",
+            WidthKey            = ConfigurationManager.AppSettings["WidthKey"]              ?? "Screenmanager Resolution Width_h182942802",
+            HeightKey           = ConfigurationManager.AppSettings["HeightKey"]             ?? "Screenmanager Resolution Height_h2627697771",
+            fullScreenKey       = ConfigurationManager.AppSettings["fullScreenKey"]         ?? "Screenmanager Fullscreen mode_h3630240806",
+            allowNativeKey      = ConfigurationManager.AppSettings["allowNativeKey"]        ?? "Screenmanager Resolution Use Native_h1405027254",
+            chooseMonitorKey    = ConfigurationManager.AppSettings["chooseMonitorKey"]      ?? "UnitySelectMonitor_h17969598",
+        };
 
         // user32.dll関数の定義
         [DllImport("user32.dll")]
@@ -101,42 +99,12 @@ namespace PR_Manager
         {
             Title = ThisName;
 
-            /*
-            // configファイルのバージョンが古い場合は更新する
-            // 起動時フリーズすることがあるバグの原因はたぶんここ
-            try
-            {
-                if (!Properties.Settings.Default.IsUpgraded)
-                {
-                    Properties.Settings.Default.Upgrade();
-                    Properties.Settings.Default.IsUpgraded = true;
-                    Properties.Settings.Default.Save();
-                }
-            }
-            catch (ConfigurationErrorsException)
-            {
-                //_ = System.Windows.MessageBox.Show("例外がスローされました。", ThisName, MessageBoxButton.OK);
-                //System.Windows.Forms.Application.Restart();
-                Environment.Exit(-1);
-            }
-            */
             if (!Properties.Settings.Default.IsUpgraded)
             {
                 Properties.Settings.Default.Upgrade();
                 Properties.Settings.Default.IsUpgraded = true;
                 Properties.Settings.Default.Save();
             }
-
-            // グローバル変数の値を設定
-            GameStartupUri      = ConfigurationManager.AppSettings["GameStartupUri"]        ?? "dmmgameplayer://play/GCL/priconner/cl/win";
-            GameStartupUriArgs  = ConfigurationManager.AppSettings["GameStartupUriArgs"]    ?? string.Empty;
-            TargetAppName       = ConfigurationManager.AppSettings["TargetAppName"]         ?? "PrincessConnectReDive";
-            RegKey              = ConfigurationManager.AppSettings["RegKey"]                ?? @"Software\Cygames\PrincessConnectReDive";
-            intWidthKey         = ConfigurationManager.AppSettings["WidthKey"]              ?? "Screenmanager Resolution Width_h182942802";
-            intHeightKey        = ConfigurationManager.AppSettings["HeightKey"]             ?? "Screenmanager Resolution Height_h2627697771";
-            fullScreenKey       = ConfigurationManager.AppSettings["fullScreenKey"]         ?? "Screenmanager Fullscreen mode_h3630240806";
-            allowNativeKey      = ConfigurationManager.AppSettings["allowNativeKey"]        ?? "Screenmanager Resolution Use Native_h1405027254";
-            chooseMonitorKey    = ConfigurationManager.AppSettings["chooseMonitorKey"]      ?? "UnitySelectMonitor_h17969598";
 
             // タイマーの設定
             timer.Tick += new EventHandler(TickHandler);
@@ -202,12 +170,6 @@ namespace PR_Manager
 
             // 仮の初期値
             selMonitor.SelectedIndex = -1;
-
-            // シングルモニタの場合コンボボックスを無効化
-            if (Screen.AllScreens.Length <= 1)
-            {
-                selMonitor.IsEnabled = false;
-            }
 
             // インポート設定に応じた内容をフォームに読み込む
             switch (Properties.Settings.Default.ImportInStarting)
@@ -313,7 +275,8 @@ namespace PR_Manager
             // モード設定の反映
             switch (Properties.Settings.Default.WindowMode)
             {
-                // フルスクリーン
+                // フルスクリーンもしくは仮想フルスクリーン
+                case 0:
                 case 1:
                     ModeW.IsChecked = false;
                     ModeF.IsChecked = true;
@@ -349,7 +312,7 @@ namespace PR_Manager
             Properties.Settings.Default.AspectW         = AssW.Text;
             Properties.Settings.Default.AspectH         = AssH.Text;
             // モード設定の反映
-            // フルスクリーン
+            // 仮想フルスクリーン
             if (ModeW.IsChecked == false && ModeF.IsChecked == true)
             {
                 Properties.Settings.Default.WindowMode = 1;
@@ -367,37 +330,18 @@ namespace PR_Manager
         /// </summary>
         private void LoadRegistry()
         {
-            RegistryKey Load = Registry.CurrentUser.OpenSubKey(RegKey);
+            bool loadResult;
 
-            // キーが見つからなかった場合は中断
-            if (Load == null)
-            {
-                _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            loadResult = ctrlreg.ReadReg(ref intWidth, ref intHeight, ref fullScreen, ref allowNative, ref chooseMonitor);
 
-            // レジストリから現在の設定を取得
-            bool loadResult = true;
-            try
-            {
-                intWidth        = (int)Load.GetValue(intWidthKey);          // 横解像度
-                intHeight       = (int)Load.GetValue(intHeightKey);         // 縦解像度
-                fullScreen      = (int)Load.GetValue(fullScreenKey);        // ウインドウまたはフルスクリーンモード
-                allowNative     = (int)Load.GetValue(allowNativeKey);       // ネイティブ
-                chooseMonitor   = (int)Load.GetValue(chooseMonitorKey);     // モニタ選択
-            }
-            catch (NullReferenceException)
-            {
-                loadResult = false;
-            }
-            Load.Close();
             WidthBox.Text = intWidth.ToString();
             HeightBox.Text = intHeight.ToString();
 
             // モード設定の反映
             switch (fullScreen)
             {
-                // フルスクリーン
+                // フルスクリーンもしくは仮想フルスクリーン
+                case 0:
                 case 1:
                     ModeW.IsChecked = false;
                     ModeF.IsChecked = true;
@@ -494,7 +438,7 @@ namespace PR_Manager
                 return false;
             }
 
-            // フルスクリーン時、チェックが入っていた場合ネイティブにする
+            // 仮想フルスクリーン時、チェックが入っていた場合ネイティブにする
             allowNative = ((bool)UseNative.IsChecked && fullScreen == 1) ? 1 : 0;
             return true;
         }
@@ -502,7 +446,7 @@ namespace PR_Manager
         /// <summary>
         /// フォームの入力内容をレジストリに反映します。
         /// </summary>
-        private void RewriteReg(object sender, RoutedEventArgs e)
+        private void RewriteReg()
         {
             //int cX = 0, cY = 0;
             // 変数の値を更新し、エラーが返された場合中断
@@ -531,30 +475,13 @@ namespace PR_Manager
                 }
             }
 
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(RegKey, true);
-            // キーが見つからなかった場合は中断
-            if (key == null)
-            {
-                _ = System.Windows.MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            key.SetValue(intWidthKey, intWidth);                            // 横解像度
-            key.SetValue(intHeightKey, intHeight);                          // 縦解像度
-            key.SetValue(fullScreenKey, fullScreen);                        // ウインドウまたはフルスクリーンモード
-            key.SetValue(allowNativeKey, allowNative);                      // ネイティブ
-            key.SetValue(chooseMonitorKey, selMonitor.SelectedIndex);       // モニタ選択
-            key.Close();
-            //_ = System.Windows.MessageBox.Show("レジストリを書き換えました。\n\n移動後の座標の差異...X:" + cX + ", Y:" + cY, ThisName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
-            if (ConfigurationManager.AppSettings["ShowApplyMessage"] != "False")
-            {
-                _ = System.Windows.MessageBox.Show("レジストリを書き換えました。", ThisName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
-            }
+            ctrlreg.WriteReg(intWidth, intHeight, fullScreen, allowNative, selMonitor.SelectedIndex);
         }
 
         /// <summary>
         /// プリコネRが起動している場合タスクキル、起動していない場合起動します
         /// </summary>
-        private void RunPriconner(object sender, RoutedEventArgs e)
+        private void LaunchPriconner(object sender, RoutedEventArgs e)
         {
             const int WM_CLOSE = 0x0010;
             Process[] ps = Process.GetProcessesByName(TargetAppName);
@@ -664,6 +591,10 @@ namespace PR_Manager
         {
             LoadDefault();
         }
+        private void RewriteReg_(object sender, RoutedEventArgs e)
+        {
+            RewriteReg();
+        }
 
         /// <summary>
         /// オプションウインドウを表示します
@@ -715,7 +646,16 @@ namespace PR_Manager
         /// </summary>
         private void FullscreenRadioChecked(object sender, RoutedEventArgs e)
         {
-            fullScreen = 1;
+            if (ConfigurationManager.AppSettings["UseVirtualFullscreenMode"] == "False")
+            {
+                // フルスクリーンモード
+                fullScreen = 0;
+            }
+            else
+            {
+                // 仮想フルスクリーンモード
+                fullScreen = 1;
+            }
             // Nativeチェックボックスを有効化
             UseNative.IsEnabled = true;
             // Nativeオプションが有効の場合解像度テキストボックスを無効化
@@ -731,8 +671,11 @@ namespace PR_Manager
         /// </summary>
         private void UseNativeChecked(object sender, RoutedEventArgs e)
         {
-            WidthBox.IsEnabled = false;
-            HeightBox.IsEnabled = false;
+            if (ModeW.IsChecked == false)
+            {
+                WidthBox.IsEnabled = false;
+                HeightBox.IsEnabled = false;
+            }
         }
         private void UseNativeUnchecked(object sender, RoutedEventArgs e)
         {
@@ -774,7 +717,6 @@ namespace PR_Manager
             Background = Dark;
             MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
             */
-            System.Windows.Forms.Application.Restart();
         }
 
         /// <summary>
@@ -798,11 +740,25 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// 数字以外のキー入力を無効化し、警告音を鳴らします
+        /// 任意のキーが押下された際に呼び出される関数です
         /// </summary>
-        private void KeyJudge(object sender, System.Windows.Input.KeyEventArgs e)
+        private void AnyKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab)
+            // Ctrl + Sの判定
+            if (Control.ModifierKeys == Keys.Control && e.Key == Key.S && ConfigurationManager.AppSettings["EnableApplyShortcutKey"] == "True")
+            {
+                e.Handled = true;
+                RewriteReg();
+            }
+        }
+
+        /// <summary>
+        /// テキストボックスの一部のキー入力を無効化し、警告音を鳴らします
+        /// </summary>
+        private void TextBoxKeyJudge(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            // テンキー含めた数字キー、Tab、Ctrl以外のキーが入力された場合
+            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab && !(Control.ModifierKeys == Keys.Control))
             {
                 e.Handled = true;
                 SystemSounds.Beep.Play();

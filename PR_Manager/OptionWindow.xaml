@@ -7,47 +7,45 @@
         mc:Ignorable="d"
         Title="オプション" Height="295" Width="510"
         ResizeMode="NoResize">
-    <Grid>
-        <StackPanel HorizontalAlignment="Left" Margin="21,7,0,0" VerticalAlignment="Top">
+    <StackPanel HorizontalAlignment="Left" Margin="21,7,0,0" VerticalAlignment="Top">
+        <StackPanel.Resources>
+            <Style TargetType="{x:Type GroupBox}">
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Margin" Value="0,5,0,5" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="Width" Value="450" />
+            </Style>
+        </StackPanel.Resources>
+        <GroupBox Header="ツール起動時に読み込む設定">
+            <StackPanel HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top">
+                <ComboBox Name="ImportInStarting" HorizontalAlignment="Left" Height="25" Width="250" SelectionChanged="ControlForm" TabIndex="0">
+                    <ComboBoxItem Content="前回終了時の入力内容を読み込む(既定)" />
+                    <ComboBoxItem Content="レジストリから設定を読み込む" />
+                    <ComboBoxItem Content="初期設定値を読み込む" />
+                </ComboBox>
+                <TextBlock Name="ImportInStartingExp" FontSize="12" Margin="0,7,0,0" />
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="ゲーム起動中の左下ボタンの挙動">
+            <StackPanel HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top">
+                <ComboBox Name="GameEndButton" HorizontalAlignment="Left" Height="25" Width="150" SelectionChanged="ControlForm" TabIndex="1">
+                    <ComboBoxItem Content="ボタンを無効化(既定)"/>
+                    <ComboBoxItem Content="ゲームを終了"/>
+                    <ComboBoxItem Content="ゲームを強制終了"/>
+                </ComboBox>
+                <TextBlock Name="GameEndButtonExp" FontSize="12" Margin="0,7,0,0" />
+            </StackPanel>
+        </GroupBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
             <StackPanel.Resources>
-                <Style TargetType="{x:Type GroupBox}">
-                    <Setter Property="HorizontalAlignment" Value="Left" />
-                    <Setter Property="Margin" Value="0,5,0,5" />
-                    <Setter Property="VerticalAlignment" Value="Top" />
-                    <Setter Property="Width" Value="450" />
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Width" Value="80" />
+                    <Setter Property="Height" Value="23" />
+                    <Setter Property="Margin" Value="6,0,6,0" />
                 </Style>
             </StackPanel.Resources>
-            <GroupBox Header="ツール起動時に読み込む設定">
-                <StackPanel HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top">
-                    <ComboBox Name="ImportInStarting" HorizontalAlignment="Left" Height="25" Width="250" SelectionChanged="ControlForm" TabIndex="0">
-                        <ComboBoxItem Content="前回終了時の入力内容を読み込む(既定)" />
-                        <ComboBoxItem Content="レジストリから設定を読み込む" />
-                        <ComboBoxItem Content="初期設定値を読み込む" />
-                    </ComboBox>
-                    <TextBlock Name="ImportInStartingExp" FontSize="12" Margin="0,7,0,0" />
-                </StackPanel>
-            </GroupBox>
-            <GroupBox Header="ゲーム起動中の左下ボタンの挙動">
-                <StackPanel HorizontalAlignment="Left" Margin="10,10,0,10" VerticalAlignment="Top">
-                    <ComboBox Name="GameEndButton" HorizontalAlignment="Left" Height="25" Width="150" SelectionChanged="ControlForm" TabIndex="1">
-                        <ComboBoxItem Content="ボタンを無効化(既定)"/>
-                        <ComboBoxItem Content="ゲームを終了"/>
-                        <ComboBoxItem Content="ゲームを強制終了"/>
-                    </ComboBox>
-                    <TextBlock Name="GameEndButtonExp" FontSize="12" Margin="0,7,0,0" />
-                </StackPanel>
-            </GroupBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                <StackPanel.Resources>
-                    <Style TargetType="{x:Type Button}">
-                        <Setter Property="Width" Value="80" />
-                        <Setter Property="Height" Value="23" />
-                        <Setter Property="Margin" Value="6,0,6,0" />
-                    </Style>
-                </StackPanel.Resources>
-                <Button Name="OKButton" Content="OK" IsEnabled="False" Click="SaveSettings" TabIndex="2"/>
-                <Button Content="キャンセル" IsCancel="True" TabIndex="3"/>
-            </StackPanel>
+            <Button Name="OKButton" Content="OK" IsEnabled="False" Click="SaveSettings" TabIndex="2"/>
+            <Button Content="キャンセル" IsCancel="True" TabIndex="3"/>
         </StackPanel>
-    </Grid>
+    </StackPanel>
 </Window>

@@ -19,6 +19,7 @@ namespace PR_Manager
         public static extern int AttachConsole(int processId);
 
         private const string ConfigFileName = "PR_Manager.exe.config";
+        private const string LatestConfigFileVersion = "1.1.0";
 
         /// <summary>
         /// ツール起動時のイベント
@@ -30,8 +31,9 @@ namespace PR_Manager
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
 
             // 各引数の設定
-            bool AllowStart = true;         // ツールの通常起動を許可するか
+            int Mode = 1;                   // ツールの実行モード
             bool AllowOtherArgs = true;     // 他の引数の実行を許可するか
+            bool InvalidArgs = false;       // 無効な引数が入力されたか
 
             bool BypassRegistryCheck = false;
 
@@ -42,6 +44,10 @@ namespace PR_Manager
                 Debug.WriteLine("取得した引数：" + e.Args[i]);
                 switch (e.Args[i])
                 {
+                    // プリコネRを起動
+                    case "--run-priconner":
+                        Mode = 2;
+                        break;
                     // レジストリチェックを行わずに起動
                     case "--registrycheck-bypass":
                         BypassRegistryCheck = true;
@@ -65,8 +71,12 @@ namespace PR_Manager
                             {
                                 ShowMessage("削除できる設定ファイルが見つかりませんでした。", MessageBoxImage.Error);
                             }
-                            AllowStart = false;
+                            Mode = 0;
                             AllowOtherArgs = false;
+                        }
+                        else
+                        {
+                            InvalidArgs = true;
                         }
                         break;
                     // 現在のuser.configのみ削除
@@ -77,8 +87,12 @@ namespace PR_Manager
                         {
                             VersionInfo versionInfo = new();
                             _ = versionInfo.ShowDialog();
-                            AllowStart = false;
+                            Mode = 0;
                             AllowOtherArgs = false;
+                        }
+                        else
+                        {
+                            InvalidArgs = true;
                         }
                         break;
                     // ヘルプを表示
@@ -93,12 +107,17 @@ namespace PR_Manager
                             }
 
                             ShowMessage(HelpArgsTxt, MessageBoxImage.Asterisk);
-                            AllowStart = false;
+                            Mode = 0;
                             AllowOtherArgs = false;
+                        }
+                        else
+                        {
+                            InvalidArgs = true;
                         }
                         break;
                     // その他の引数はすべて無視
                     default:
+                        InvalidArgs = true;
                         break;
                 }
 
@@ -108,54 +127,55 @@ namespace PR_Manager
                 }
             }
 
-            // 引数が指定されなかった場合通常起動する
-            if (AllowStart)
+            // 無効な引数が入力された場合メッセージを表示する
+            if (InvalidArgs)
+            {
+                ShowMessage("無効な引数が入力されたか、引数の使い方が誤っています。\n\"--help\"もしくは\"-h\"でヘルプを表示できます。", MessageBoxImage.Error);
+            }
+
+            // モード別の挙動
+            if (Mode > 0)
             {
                 CheckExeConfigFile();
                 if (!BypassRegistryCheck)
                 {
                     CheckRegistry();
                 }
-                ReadytoStart();
+                switch (Mode)
+                {
+                    // 通常起動
+                    case 1:
+                        // メインウインドウを呼び出す
+                        MainWindow window = new();
+                        window.Show();
+                        break;
+                    // ゲームの起動
+                    case 2:
+                        string GameStartupUri = ConfigurationManager.AppSettings["GameStartupUri"] ?? "dmmgameplayer://play/GCL/priconner/cl/win";
+                        string GameStartupUriArgs = ConfigurationManager.AppSettings["GameStartupUriArgs"] ?? string.Empty;
+
+                        ProcessStartInfo StartGame = new(GameStartupUri)
+                        {
+                            Arguments = GameStartupUriArgs
+                        };
+
+                        _ = Process.Start(StartGame);
+                        Shutdown();
+                        break;
+                }
             }
             else
             {
+                // 終了
                 Shutdown();
             }
-        }
-
-        /// <summary>
-        /// ツールを起動します。
-        /// ツールの起動準備をしてからメインウインドウを呼び出します。
-        /// </summary>
-        public void ReadytoStart()
-        {
-#if DEBUG
-            if (Environment.Is64BitProcess)
-            {
-                Debug.WriteLine("64ビットで動作しています");
-            }
-            Configuration appSettings = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
-            Debug.WriteLine("設定ファイルの存在：" + appSettings.HasFile); // 設定ファイルの存在確認
-            Debug.WriteLine(appSettings.FilePath); // 設定ファイルの保存パス
-            Debug.WriteLine(GetUserSettingsPath());
-            Debug.WriteLine(Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager");
-            Debug.WriteLine(Assembly.GetEntryAssembly().Location);
-            Debug.WriteLine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            Debug.WriteLine(Assembly.GetExecutingAssembly().Location);
-#endif
-
-            // メインウインドウを呼び出す
-            // グローバル"mainWindow"からは絶対に呼び出さないこと
-            MainWindow window = new();
-            window.Show();
         }
 
         /// <summary>
         /// メッセージを表示します。
         /// コンソールが利用可能な場合はコンソールに出力、そうでなければメッセージボックスで表示します。
         /// </summary>
-        public void ShowMessage(string message = null, MessageBoxImage messageboximage = MessageBoxImage.None)
+        public static void ShowMessage(string message = null, MessageBoxImage messageboximage = MessageBoxImage.None)
         {
             if (AttachConsole(-1) == 0)
             {
@@ -171,7 +191,7 @@ namespace PR_Manager
         /// 現在の実行ファイルが使用しているUserConfigフォルダの場所を取得します。
         /// </summary>
         /// <returns>UserConfigフォルダの場所を絶対パスで返します。</returns>
-        public string GetUserSettingsPath()
+        public static string GetUserSettingsPath()
         {
             string filepath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             string[] split = filepath.Split('\\');
@@ -194,8 +214,8 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// PR_Manager.exe.configファイルの存在を確認します
-        /// 存在しない場合は作成します
+        /// PR_Manager.exe.configファイルの存在とバージョンを確認します
+        /// 存在しない場合は作成し、バージョンが古い場合は警告メッセージを表示します。
         /// </summary>
         public void CheckExeConfigFile()
         {
@@ -216,6 +236,11 @@ namespace PR_Manager
                     Shutdown();
                 }
             }
+            // "PR_Manager.exe.config"ファイルのバージョンを確認する
+            if (PR_Manager.Properties.Settings.Default.ConfigFileVersion != LatestConfigFileVersion)
+            {
+                _ = MessageBox.Show("\"" + ConfigFileName + "\"ファイルのバージョンが古いようです。新しいバージョンに更新してください。\n古いファイルを削除することで次回実行時に新しいバージョンのファイルが生成されます。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         /// <summary>
@@ -234,6 +259,8 @@ namespace PR_Manager
                 _ = MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown(-1);
             }
+
+            Load.Close();
         }
     }
 }

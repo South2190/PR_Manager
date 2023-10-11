@@ -70,7 +70,7 @@
                     <TextBox Name="WidthBox" MaxLength="5" KeyDown="TextBoxKeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="0"/>
                     <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="0"/>
                     <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                    <TextBox Name="HeightBox" MaxLength="5" KeyDown="TextBoxKeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="2"/>
+                    <TextBox Name="HeightBox" MaxLength="5" KeyDown="TextBoxKeyJudge" TextChanged="FixassH" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="2"/>
                     <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="2"/>
                     <CheckBox Name="UseNative" Content="自動設定" HorizontalAlignment="Right" VerticalAlignment="Center" Checked="UseNativeChecked" Unchecked="UseNativeUnchecked" ToolTip="モニターのサイズに合わせて解像度を自動設定します" TabIndex="6" Grid.Column="3" Grid.Row="0" Grid.RowSpan="3"/>
                 </Grid>
@@ -87,9 +87,9 @@
         <GroupBox Header="起動ディスプレイ選択" Height="75">
             <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="10"/>
         </GroupBox>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="22" Margin="30,20,0,0">
-            <Button Name="startButton" Click="LaunchPriconner" Width="135" TabIndex="12"/>
-            <Button Name="applyButton" Content="適用" Click="RewriteReg_" ToolTip="現在の入力内容をレジストリに書き込みます(Ctrl + S)" Width="70" Margin="15,0,0,0" TabIndex="11"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="23" Margin="30,18,0,0">
+            <Button Name="startButton" Click="LaunchPriconner" Width="130" TabIndex="12"/>
+            <Button Name="applyButton" Content="適用(_A)" Click="RewriteReg_" ToolTip="現在の入力内容をレジストリに書き込みます(Ctrl + S)" Width="75" Margin="15,0,0,0" TabIndex="11"/>
         </StackPanel>
     </StackPanel>
 </Window>

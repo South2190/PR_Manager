@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using PR_Manager.Resources;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Navigation;
 
@@ -15,8 +16,8 @@ namespace PR_Manager
         public VersionInfo()
         {
             InitializeComponent();
-            ThisName.Text = MainWindow.ThisName;
-            Version.Text = MainWindow.Version;
+            ThisName.Text = InternalSettings.AppName;
+            Version.Text = InternalSettings.AppVersion;
             _ = OKButton.Focus();
         }
 

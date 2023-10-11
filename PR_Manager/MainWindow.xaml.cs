@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PR_Manager.Resources;
+using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -21,32 +22,11 @@ namespace PR_Manager
         /// Debug時とRelease時のXAMLの表示を操作します
         /// </summary>
         public static Visibility IsDebugVisible
-        {
 #if DEBUG
-            get { return Visibility.Visible; }
+            => Visibility.Visible;
 #elif TRACE
-            get { return Visibility.Collapsed; }
+            => Visibility.Collapsed;
 #endif
-        }
-
-        // ---------------ツールの設定(読み取り専用)---------------
-        // ウインドウタイトル
-#if DEBUG
-        public static readonly string ThisName = "PR_Manager(DEBUG)";
-#elif TRACE
-        public static readonly string ThisName = "PR_Manager";
-#endif
-        // バージョン
-        public static readonly string Version = "1.1.0.230722";
-        //public static readonly string AssemblyVersion = "1.0.0";
-        // --------------------------------------------------------
-
-        // グローバル変数の宣言
-        // ゲーム起動URI
-        public static readonly string GameStartupUri        = ConfigurationManager.AppSettings["GameStartupUri"]        ?? "dmmgameplayer://play/GCL/priconner/cl/win";
-        public static readonly string GameStartupUriArgs    = ConfigurationManager.AppSettings["GameStartupUriArgs"]    ?? string.Empty;
-        // ゲーム実行ファイルの名前
-        public static readonly string TargetAppName         = ConfigurationManager.AppSettings["TargetAppName"]         ?? "PrincessConnectReDive";
 
         public int intWidth;
         public int intHeight;
@@ -59,23 +39,13 @@ namespace PR_Manager
         // タイマーの宣言
         public readonly Timer timer = new();
 
-        private static readonly ControlRegistry ctrlreg = new()
-        {
-            RegKey              = ConfigurationManager.AppSettings["RegKey"]                ?? @"Software\Cygames\PrincessConnectReDive",
-            WidthKey            = ConfigurationManager.AppSettings["WidthKey"]              ?? "Screenmanager Resolution Width_h182942802",
-            HeightKey           = ConfigurationManager.AppSettings["HeightKey"]             ?? "Screenmanager Resolution Height_h2627697771",
-            fullScreenKey       = ConfigurationManager.AppSettings["fullScreenKey"]         ?? "Screenmanager Fullscreen mode_h3630240806",
-            allowNativeKey      = ConfigurationManager.AppSettings["allowNativeKey"]        ?? "Screenmanager Resolution Use Native_h1405027254",
-            chooseMonitorKey    = ConfigurationManager.AppSettings["chooseMonitorKey"]      ?? "UnitySelectMonitor_h17969598",
-        };
-
         // user32.dll関数の定義
         [DllImport("user32.dll")]
         private static extern bool ClientToScreen(IntPtr hwnd, ref System.Drawing.Point lpPoint);
         [DllImport("user32.dll")]
         private static extern int MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, int bRepaint);
         [DllImport("user32.dll")]
-        private static extern IntPtr PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+        private static extern int PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
 
         private bool flg = true;
         public MainWindow()
@@ -97,7 +67,7 @@ namespace PR_Manager
         /// </summary>
         private void Setup()
         {
-            Title = ThisName;
+            Title = InternalSettings.AppName;
 
             if (!Properties.Settings.Default.IsUpgraded)
             {
@@ -217,7 +187,7 @@ namespace PR_Manager
         public void ChangeButton()
         {
             // プリコネRが起動している場合
-            if (Process.GetProcessesByName(TargetAppName).Length <= 0)
+            if (Process.GetProcessesByName(InternalSettings.TargetAppName).Length <= 0)
             {
                 if (!startButton.IsEnabled)
                 {
@@ -332,7 +302,7 @@ namespace PR_Manager
         {
             bool loadResult;
 
-            loadResult = ctrlreg.ReadReg(ref intWidth, ref intHeight, ref fullScreen, ref allowNative, ref chooseMonitor);
+            loadResult = ControlRegistry.ReadReg(ref intWidth, ref intHeight, ref fullScreen, ref allowNative, ref chooseMonitor);
 
             WidthBox.Text = intWidth.ToString();
             HeightBox.Text = intHeight.ToString();
@@ -393,7 +363,7 @@ namespace PR_Manager
             // 例外が発生した場合警告を表示
             if (!loadResult)
             {
-                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", ThisName, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                _ = System.Windows.MessageBox.Show("一部設定が正常に読み込まれませんでした", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
 
@@ -434,7 +404,7 @@ namespace PR_Manager
             // 変数がfalseの場合中断
             if (!convertCheck)
             {
-                _ = System.Windows.MessageBox.Show("解像度の入力値が不正です。正しく入力したか確認してください。\n\n・半角数字のみが入力されているか\n・正の整数が入力されているか", ThisName, MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = System.Windows.MessageBox.Show("解像度の入力値が不正です。正しく入力したか確認してください。\n\n・半角数字のみが入力されているか\n・正の整数が入力されているか", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -459,23 +429,33 @@ namespace PR_Manager
             if (ConfigurationManager.AppSettings["ApplyInRunning"] == "True")
             {
                 // プリコネRが起動している場合
-                foreach (Process p in Process.GetProcessesByName(TargetAppName))
+                foreach (Process p in Process.GetProcessesByName(InternalSettings.TargetAppName))
                 {
                     // 現在のプリコネRのウインドウ位置を取得
                     System.Drawing.Point point = default;
-                    ClientToScreen(p.MainWindowHandle, ref point);
+                    _ = ClientToScreen(p.MainWindowHandle, ref point);
                     //cX = point.X;
                     //cY = point.Y;
                     // ウインドウサイズを変更
-                    MoveWindow(p.MainWindowHandle, point.X - 8, point.Y - 31, intWidth + 16, intHeight + 39, 1);
+                    _ = MoveWindow(p.MainWindowHandle, point.X - 8, point.Y - 31, intWidth + 16, intHeight + 39, 1);
                     //point = default;
                     //ClientToScreen(p.MainWindowHandle, ref point);
                     //cX = point.X - cX;
                     //cY = point.Y - cY;
+
+                    /*
+                     * メモ書き
+                     * 
+                     * ウインドウボーダーは4px、左右両方合わせると8px
+                     * 縦方向はウインドウのタイトルバーを含む(おそらく23px)
+                     * システムの拡大率によってこの値は変わってくる
+                     * 
+                     * 拡大率の異なる環境で幅を調べる(テストボタン)
+                     */
                 }
             }
 
-            ctrlreg.WriteReg(intWidth, intHeight, fullScreen, allowNative, selMonitor.SelectedIndex);
+            ControlRegistry.WriteReg(intWidth, intHeight, fullScreen, allowNative, selMonitor.SelectedIndex);
         }
 
         /// <summary>
@@ -484,16 +464,16 @@ namespace PR_Manager
         private void LaunchPriconner(object sender, RoutedEventArgs e)
         {
             const int WM_CLOSE = 0x0010;
-            Process[] ps = Process.GetProcessesByName(TargetAppName);
+            Process[] ps = Process.GetProcessesByName(InternalSettings.TargetAppName);
 
             // プリコネRが起動していない場合起動する
             if (ps.Length <= 0)
             {
                 try
                 {
-                    ProcessStartInfo StartGame = new(GameStartupUri)
+                    ProcessStartInfo StartGame = new(InternalSettings.GameStartupUri)
                     {
-                        Arguments = GameStartupUriArgs
+                        Arguments = InternalSettings.GameStartupUriArgs
                     };
 
                     _ = Process.Start(StartGame);
@@ -717,6 +697,9 @@ namespace PR_Manager
             Background = Dark;
             MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
             */
+            double borderWidth = SystemParameters.ResizeFrameVerticalBorderWidth;
+            double borderHeight = SystemParameters.ResizeFrameHorizontalBorderHeight;
+            _ = System.Windows.MessageBox.Show("borderWidth=" + borderWidth + ", borderHeight=" + borderHeight, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
         }
 
         /// <summary>

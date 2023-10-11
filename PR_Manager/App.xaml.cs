@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+﻿//using Microsoft.Win32;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -49,17 +49,17 @@ namespace PR_Manager
                         Mode = 2;
                         break;
                     // レジストリチェックを行わずに起動
-                    case "--registrycheck-bypass":
+                    case "--bypass-registrycheck":
                         BypassRegistryCheck = true;
                         break;
                     // user.configの削除
-                    case "--userconfig-delete":
-                    case "--userconfig-delete-current":
+                    case "--delete-userconfig":
+                    case "--delete-userconfig-current":
                         if (i == 0) {
                             string UserConfigPath = e.Args[i] switch
                             {
-                                "--userconfig-delete" => Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager",
-                                "--userconfig-delete-current" => GetUserSettingsPath(),
+                                "--delete-userconfig" => Environment.GetEnvironmentVariable("LOCALAPPDATA") + @"\PR_Manager",
+                                "--delete-userconfig-current" => GetUserSettingsPath(),
                                 _ => null
                             };
                             if (Directory.Exists(UserConfigPath))
@@ -100,7 +100,7 @@ namespace PR_Manager
                     case "--help":
                         if (i == 0) {
                             string HelpArgsTxt;
-                            StreamResourceInfo info = GetResourceStream(new Uri("/HelpArgs.txt", UriKind.Relative));
+                            StreamResourceInfo info = GetResourceStream(new Uri("/Resources/HelpArgs.txt", UriKind.Relative));
                             using (StreamReader sr = new(info.Stream))
                             {
                                 HelpArgsTxt = sr.ReadToEnd();
@@ -139,7 +139,7 @@ namespace PR_Manager
                 CheckExeConfigFile();
                 if (!BypassRegistryCheck)
                 {
-                    CheckRegistry();
+                    if (!ControlRegistry.CheckReg(out _, true)) { Shutdown(-1); }
                 }
                 switch (Mode)
                 {
@@ -151,12 +151,9 @@ namespace PR_Manager
                         break;
                     // ゲームの起動
                     case 2:
-                        string GameStartupUri = ConfigurationManager.AppSettings["GameStartupUri"] ?? "dmmgameplayer://play/GCL/priconner/cl/win";
-                        string GameStartupUriArgs = ConfigurationManager.AppSettings["GameStartupUriArgs"] ?? string.Empty;
-
-                        ProcessStartInfo StartGame = new(GameStartupUri)
+                        ProcessStartInfo StartGame = new(PR_Manager.Resources.InternalSettings.GameStartupUri)
                         {
-                            Arguments = GameStartupUriArgs
+                            Arguments = PR_Manager.Resources.InternalSettings.GameStartupUriArgs
                         };
 
                         _ = Process.Start(StartGame);
@@ -179,7 +176,7 @@ namespace PR_Manager
         {
             if (AttachConsole(-1) == 0)
             {
-                _ = MessageBox.Show(message, "PR_Manager", MessageBoxButton.OK, messageboximage);
+                _ = MessageBox.Show(message, PR_Manager.Resources.InternalSettings.AppName, MessageBoxButton.OK, messageboximage);
             }
             else
             {
@@ -239,28 +236,8 @@ namespace PR_Manager
             // "PR_Manager.exe.config"ファイルのバージョンを確認する
             if (PR_Manager.Properties.Settings.Default.ConfigFileVersion != LatestConfigFileVersion)
             {
-                _ = MessageBox.Show("\"" + ConfigFileName + "\"ファイルのバージョンが古いようです。新しいバージョンに更新してください。\n古いファイルを削除することで次回実行時に新しいバージョンのファイルが生成されます。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _ = MessageBox.Show("\"" + ConfigFileName + "\"ファイルのバージョンが古いようです。新しいバージョンに更新してください。\n古いファイルを削除することで次回実行時に新しいバージョンのファイルが生成されます。", PR_Manager.Resources.InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-        }
-
-        /// <summary>
-        /// レジストリが存在するかどうかを確認します。
-        /// 存在しない場合はエラーメッセージを表示した上で終了コード(-1)で終了します。
-        /// </summary>
-        public void CheckRegistry()
-        {
-            string RegKey = ConfigurationManager.AppSettings["RegKey"] ?? @"Software\Cygames\PrincessConnectReDive";
-
-            RegistryKey Load = Registry.CurrentUser.OpenSubKey(RegKey);
-
-            // レジストリが存在しない場合起動を中止する
-            if (Load == null)
-            {
-                _ = MessageBox.Show("レジストリキーが見つかりませんでした。ゲームがインストールされていない可能性があります。", "PR_Manager", MessageBoxButton.OK, MessageBoxImage.Error);
-                Shutdown(-1);
-            }
-
-            Load.Close();
         }
     }
 }

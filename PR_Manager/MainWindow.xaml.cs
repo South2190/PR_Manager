@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -135,11 +136,11 @@ namespace PR_Manager
             // 接続されているディスプレイ数だけコンボボックスに選択肢を追加
             for (i = 1; i <= Screen.AllScreens.Length; i++)
             {
-                _ = selMonitor.Items.Add("ディスプレイ" + i);
+                _ = SelMonitor.Items.Add("ディスプレイ" + i);
             }
 
             // 仮の初期値
-            selMonitor.SelectedIndex = -1;
+            SelMonitor.SelectedIndex = -1;
 
             // インポート設定に応じた内容をフォームに読み込む
             switch (Properties.Settings.Default.ImportInStarting)
@@ -238,35 +239,17 @@ namespace PR_Manager
             WidthBox.Text               = Properties.Settings.Default.Width;
             HeightBox.Text              = Properties.Settings.Default.Height;
             UseNative.IsChecked         = Properties.Settings.Default.AllowNative;
-            selMonitor.SelectedIndex    = Properties.Settings.Default.ChooseMonitor;
+            SelMonitor.SelectedIndex    = Properties.Settings.Default.ChooseMonitor;
             AllowFixedass.IsChecked     = Properties.Settings.Default.AllowFix;
             AssW.Text                   = Properties.Settings.Default.AspectW;
             AssH.Text                   = Properties.Settings.Default.AspectH;
-            // モード設定の反映
-            switch (Properties.Settings.Default.WindowMode)
+            WindowMode.SelectedIndex    = Properties.Settings.Default.WindowMode switch
             {
-                // フルスクリーンもしくは仮想フルスクリーン
-                case 0:
-                case 1:
-                    ModeW.IsChecked = false;
-                    ModeF.IsChecked = true;
-
-                    // Nativeチェックボックスを有効化
-                    UseNative.IsEnabled = true;
-                    break;
-                // ウインドウ
-                case 3:
-                    ModeW.IsChecked = true;
-                    ModeF.IsChecked = false;
-
-                    // Nativeチェックボックスを無効化
-                    UseNative.IsEnabled = false;
-                    break;
-                // 例外
-                default:
-                    //loadResult = false;
-                    break;
-            }
+                0 => 2,
+                1 => 1,
+                3 => 0,
+                _ => -1
+            };
         }
 
         /// <summary>
@@ -277,21 +260,16 @@ namespace PR_Manager
             Properties.Settings.Default.Width           = WidthBox.Text;
             Properties.Settings.Default.Height          = HeightBox.Text;
             Properties.Settings.Default.AllowNative     = (bool)UseNative.IsChecked;
-            Properties.Settings.Default.ChooseMonitor   = selMonitor.SelectedIndex;
+            Properties.Settings.Default.ChooseMonitor   = SelMonitor.SelectedIndex;
             Properties.Settings.Default.AllowFix        = (bool)AllowFixedass.IsChecked;
             Properties.Settings.Default.AspectW         = AssW.Text;
             Properties.Settings.Default.AspectH         = AssH.Text;
-            // モード設定の反映
-            // 仮想フルスクリーン
-            if (ModeW.IsChecked == false && ModeF.IsChecked == true)
+            Properties.Settings.Default.WindowMode      = WindowMode.SelectedIndex switch
             {
-                Properties.Settings.Default.WindowMode = 1;
-            }
-            // ウインドウ
-            else if (ModeW.IsChecked == true && ModeF.IsChecked == false)
-            {
-                Properties.Settings.Default.WindowMode = 3;
-            }
+                1 => 1,
+                2 => 0,
+                _ => 3
+            };
             Properties.Settings.Default.Save();
         }
 
@@ -307,31 +285,13 @@ namespace PR_Manager
             WidthBox.Text = intWidth.ToString();
             HeightBox.Text = intHeight.ToString();
 
-            // モード設定の反映
-            switch (fullScreen)
+            WindowMode.SelectedIndex = fullScreen switch
             {
-                // フルスクリーンもしくは仮想フルスクリーン
-                case 0:
-                case 1:
-                    ModeW.IsChecked = false;
-                    ModeF.IsChecked = true;
-
-                    // Nativeチェックボックスを有効化
-                    UseNative.IsEnabled = true;
-                    break;
-                // ウインドウ
-                case 3:
-                    ModeW.IsChecked = true;
-                    ModeF.IsChecked = false;
-
-                    // Nativeチェックボックスを無効化
-                    UseNative.IsEnabled = false;
-                    break;
-                // 例外
-                default:
-                    loadResult = false;
-                    break;
-            }
+                0 => 2,
+                1 => 1,
+                3 => 0,
+                _ => -1
+            };
 
             // ネイティブ設定の反映
             switch (allowNative)
@@ -352,7 +312,7 @@ namespace PR_Manager
             // モニタ設定の反映
             if (chooseMonitor < Screen.AllScreens.Length)
             {
-                selMonitor.SelectedIndex = chooseMonitor;
+                SelMonitor.SelectedIndex = chooseMonitor;
             }
             // 例外
             else
@@ -372,14 +332,13 @@ namespace PR_Manager
         /// </summary>
         private void LoadDefault()
         {
-            ModeW.IsChecked             = true;
-            ModeF.IsChecked             = false;
+            WindowMode.SelectedIndex    = 0;
             WidthBox.Text               = "1280";
             HeightBox.Text              = "720";
             UseNative.IsEnabled         = false;
             AssW.Text                   = "16";
             AssH.Text                   = "9";
-            selMonitor.SelectedIndex    = 0;
+            SelMonitor.SelectedIndex    = 0;
         }
 
         /// <summary>
@@ -455,7 +414,7 @@ namespace PR_Manager
                 }
             }
 
-            ControlRegistry.WriteReg(intWidth, intHeight, fullScreen, allowNative, selMonitor.SelectedIndex);
+            ControlRegistry.WriteReg(intWidth, intHeight, fullScreen, allowNative, SelMonitor.SelectedIndex);
         }
 
         /// <summary>
@@ -609,40 +568,34 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// 「ウインドウ」ラジオボタンが選択された場合の処理
+        /// "自動設定"チェックボックスの有効・無効を切り替えます
         /// </summary>
-        private void WindowRadioChecked(object sender, RoutedEventArgs e)
+        private void ControlUseNativeCheckbox(object sender, SelectionChangedEventArgs e)
         {
-            fullScreen = 3;
-            // Nativeチェックボックスを無効化
-            UseNative.IsEnabled = false;
-            // 解像度テキストボックスを有効化
-            WidthBox.IsEnabled = true;
-            HeightBox.IsEnabled = true;
-        }
-
-        /// <summary>
-        /// 「フルスクリーン」ラジオボタンが選択された場合の処理
-        /// </summary>
-        private void FullscreenRadioChecked(object sender, RoutedEventArgs e)
-        {
-            if (ConfigurationManager.AppSettings["UseVirtualFullscreenMode"] == "False")
+            switch (WindowMode.SelectedIndex)
             {
-                // フルスクリーンモード
-                fullScreen = 0;
-            }
-            else
-            {
-                // 仮想フルスクリーンモード
-                fullScreen = 1;
-            }
-            // Nativeチェックボックスを有効化
-            UseNative.IsEnabled = true;
-            // Nativeオプションが有効の場合解像度テキストボックスを無効化
-            if (UseNative.IsChecked == true)
-            {
-                WidthBox.IsEnabled = false;
-                HeightBox.IsEnabled = false;
+                // ウインドウ
+                case 0:
+                    // Nativeチェックボックスを無効化
+                    UseNative.IsEnabled = false;
+                    // 解像度テキストボックスを有効化
+                    WidthBox.IsEnabled = true;
+                    HeightBox.IsEnabled = true;
+                    break;
+                // フルスクリーンもしくは仮想フルスクリーン
+                case 1:
+                case 2:
+                    // Nativeチェックボックスを有効化
+                    UseNative.IsEnabled = true;
+                    // Nativeオプションが有効の場合解像度テキストボックスを無効化
+                    if (UseNative.IsChecked == true)
+                    {
+                        WidthBox.IsEnabled = false;
+                        HeightBox.IsEnabled = false;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -651,7 +604,7 @@ namespace PR_Manager
         /// </summary>
         private void UseNativeChecked(object sender, RoutedEventArgs e)
         {
-            if (ModeW.IsChecked == false)
+            if (WindowMode.SelectedIndex != 0)
             {
                 WidthBox.IsEnabled = false;
                 HeightBox.IsEnabled = false;
@@ -728,7 +681,7 @@ namespace PR_Manager
         private void AnyKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // Ctrl + Sの判定
-            if (Control.ModifierKeys == Keys.Control && e.Key == Key.S && ConfigurationManager.AppSettings["EnableApplyShortcutKey"] == "True")
+            if (System.Windows.Forms.Control.ModifierKeys == Keys.Control && e.Key == Key.S && ConfigurationManager.AppSettings["EnableApplyShortcutKey"] == "True")
             {
                 e.Handled = true;
                 RewriteReg();
@@ -741,7 +694,7 @@ namespace PR_Manager
         private void TextBoxKeyJudge(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // テンキー含めた数字キー、Tab、Ctrl以外のキーが入力された場合
-            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab && !(Control.ModifierKeys == Keys.Control))
+            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab && !(System.Windows.Forms.Control.ModifierKeys == Keys.Control))
             {
                 e.Handled = true;
                 SystemSounds.Beep.Play();

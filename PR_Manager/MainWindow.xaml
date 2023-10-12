@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         FontFamily="Meiryo"
-        Height="442" Width="297"
+        Height="437" Width="297"
         ResizeMode="CanMinimize"
         Closing="MainWindow_Closing"
         KeyDown="AnyKeyDown">
@@ -41,7 +41,8 @@
                 <MenuItem Header="終了(_X)" Click="ThisExit"/>
             </MenuItem>
         </Menu>
-        <GroupBox Header="モード選択" Height="80">
+        <GroupBox Header="モード選択" Height="75">
+            <!--
             <StackPanel HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type RadioButton}">
@@ -51,6 +52,12 @@
                 <RadioButton Name="ModeW" Content="ウインドウ" GroupName="mode" Checked="WindowRadioChecked" ToolTip="ウインドウモードで起動します" TabIndex="2"/>
                 <RadioButton Name="ModeF" Content="フルスクリーン" GroupName="mode" Checked="FullscreenRadioChecked" ToolTip="フルスクリーンモードで起動します(Alt+F4で終了)" TabIndex="3"/>
             </StackPanel>
+            -->
+            <ComboBox Name="WindowMode" SelectionChanged="ControlUseNativeCheckbox" Width="190" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="ゲームの表示方法を選択します" TabIndex="2">
+                <ComboBoxItem Content="ウインドウ"/>
+                <ComboBoxItem Content="仮想フルスクリーン"/>
+                <ComboBoxItem Content="フルスクリーン"/>
+            </ComboBox>
         </GroupBox>
         <GroupBox Header="解像度" Height="135">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -85,7 +92,7 @@
             </StackPanel>
         </GroupBox>
         <GroupBox Header="起動ディスプレイ選択" Height="75">
-            <ComboBox Name="selMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="10"/>
+            <ComboBox Name="SelMonitor" HorizontalAlignment="Center" Height="25" VerticalAlignment="Center" Width="190" ToolTip="起動時にゲームを表示するモニターを選択します" TabIndex="10"/>
         </GroupBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="23" Margin="30,18,0,0">
             <Button Name="startButton" Click="LaunchPriconner" Width="130" TabIndex="12"/>

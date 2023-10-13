@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace PR_Manager.Resources
+namespace PR_Manager.Classes
 {
     /// <summary>
     /// 開発者が利用するツールの内部設定です。
@@ -14,7 +14,11 @@ namespace PR_Manager.Resources
         public static readonly string AppName = "PR_Manager";
 #endif
         // バージョン
-        public static readonly string AppVersion = "1.1.1-rc0";
+        public static readonly string AppVersion = "1.2.0-rc1";
+
+        // configファイル設定
+        public static readonly string ConfigFileName = "PR_Manager.exe.config";
+        public static readonly string ConfigFileVersion = "1.2.0-rc1";
 
         // ゲーム起動URI
         public static readonly string GameStartupUri        = ConfigurationManager.AppSettings["GameStartupUri"]        ?? "dmmgameplayer://play/GCL/priconner/cl/win";

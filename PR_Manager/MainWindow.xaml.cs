@@ -1,4 +1,4 @@
-﻿using PR_Manager.Resources;
+﻿using PR_Manager.Classes;
 using System;
 using System.ComponentModel;
 using System.Configuration;

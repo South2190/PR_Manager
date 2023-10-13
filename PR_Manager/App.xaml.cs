@@ -1,4 +1,5 @@
 ﻿//using Microsoft.Win32;
+using PR_Manager.Classes;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -17,9 +18,6 @@ namespace PR_Manager
     {
         [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
         public static extern int AttachConsole(int processId);
-
-        private const string ConfigFileName = "PR_Manager.exe.config";
-        private const string LatestConfigFileVersion = "1.1.0";
 
         /// <summary>
         /// ツール起動時のイベント
@@ -99,14 +97,7 @@ namespace PR_Manager
                     case "-h":
                     case "--help":
                         if (i == 0) {
-                            string HelpArgsTxt;
-                            StreamResourceInfo info = GetResourceStream(new Uri("/Resources/HelpArgs.txt", UriKind.Relative));
-                            using (StreamReader sr = new(info.Stream))
-                            {
-                                HelpArgsTxt = sr.ReadToEnd();
-                            }
-
-                            ShowMessage(HelpArgsTxt, MessageBoxImage.Asterisk);
+                            ShowMessage(PR_Manager.Properties.Resources.HelpArgs, MessageBoxImage.Asterisk);
                             Mode = 0;
                             AllowOtherArgs = false;
                         }
@@ -151,9 +142,9 @@ namespace PR_Manager
                         break;
                     // ゲームの起動
                     case 2:
-                        ProcessStartInfo StartGame = new(PR_Manager.Resources.InternalSettings.GameStartupUri)
+                        ProcessStartInfo StartGame = new(InternalSettings.GameStartupUri)
                         {
-                            Arguments = PR_Manager.Resources.InternalSettings.GameStartupUriArgs
+                            Arguments = InternalSettings.GameStartupUriArgs
                         };
 
                         _ = Process.Start(StartGame);
@@ -176,7 +167,7 @@ namespace PR_Manager
         {
             if (AttachConsole(-1) == 0)
             {
-                _ = MessageBox.Show(message, PR_Manager.Resources.InternalSettings.AppName, MessageBoxButton.OK, messageboximage);
+                _ = MessageBox.Show(message, InternalSettings.AppName, MessageBoxButton.OK, messageboximage);
             }
             else
             {
@@ -216,7 +207,7 @@ namespace PR_Manager
         /// </summary>
         public void CheckExeConfigFile()
         {
-            if (!File.Exists(ConfigFileName))
+            if (!File.Exists(InternalSettings.ConfigFileName))
             {
                 string ReadConfigFile;
                 StreamResourceInfo info = GetResourceStream(new Uri("/App.config", UriKind.Relative));
@@ -224,7 +215,7 @@ namespace PR_Manager
                 {
                     ReadConfigFile = sr.ReadToEnd();
                 }
-                File.WriteAllText(ConfigFileName, ReadConfigFile);
+                File.WriteAllText(InternalSettings.ConfigFileName, ReadConfigFile);
 
                 // configファイルを新たに作成した際、user.configが存在するとフリーズしてしまうので再起動する
                 if (Directory.Exists(GetUserSettingsPath()))
@@ -234,9 +225,9 @@ namespace PR_Manager
                 }
             }
             // "PR_Manager.exe.config"ファイルのバージョンを確認する
-            if (PR_Manager.Properties.Settings.Default.ConfigFileVersion != LatestConfigFileVersion)
+            if (PR_Manager.Properties.Settings.Default.ConfigFileVersion != InternalSettings.ConfigFileVersion)
             {
-                _ = MessageBox.Show("\"" + ConfigFileName + "\"ファイルのバージョンが古いようです。新しいバージョンに更新してください。\n古いファイルを削除することで次回実行時に新しいバージョンのファイルが生成されます。", PR_Manager.Resources.InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                _ = MessageBox.Show("\"" + InternalSettings.ConfigFileName + "\"ファイルのバージョンが古いようです。新しいバージョンに更新してください。\n古いファイルを削除することで次回実行時に新しいバージョンのファイルが生成されます。", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

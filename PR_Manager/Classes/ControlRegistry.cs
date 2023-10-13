@@ -1,10 +1,9 @@
 ﻿using Microsoft.Win32;
-using PR_Manager.Resources;
 using System;
 using System.Configuration;
 using System.Windows;
 
-namespace PR_Manager
+namespace PR_Manager.Classes
 {
     /// <summary>
     /// レジストリの読み書きを行うクラス

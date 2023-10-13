@@ -1,4 +1,4 @@
-﻿using PR_Manager.Resources;
+﻿using PR_Manager.Classes;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Navigation;

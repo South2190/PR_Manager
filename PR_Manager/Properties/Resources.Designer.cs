@@ -59,5 +59,35 @@ namespace PR_Manager.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   使用方法
+        ///
+        ///PR_Manager [引数]
+        ///
+        ///他の引数と併用する場合は、引数と引数の間に半角スペースを挟んでください。
+        ///また、一部の引数は併用できません。
+        ///
+        ///【引数】         【説明】
+        ///(引数なし)       通常起動します
+        ///--run-priconner  ゲームを起動します
+        ///                 この引数はツール本体を起動しません
+        ///--bypass-registrycheck
+        ///                 レジストリチェックを行わずに起動します
+        ///
+        ///以下の引数はそれぞれ単独でのみ使用でき、他の引数との併用はできません。
+        ///これらの引数を使用した場合、以降に連続で指定された引数は全て無視されます。
+        ///また、これらの引数はツール本体を起動しません。
+        ///--delete-userconfig
+        ///                 システムに保存されている設定ファイルを削除します
+        ///                 &quot;PR_Manager.exe.config&quot;ファイルには影響しません
+        ///--delete-userconfig-current
+        ///          [残りの文字列は切り詰められました]&quot;; に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string HelpArgs {
+            get {
+                return ResourceManager.GetString("HelpArgs", resourceCulture);
+            }
+        }
     }
 }

@@ -85,7 +85,7 @@
         </GroupBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="23" Margin="30,18,0,0">
             <Button Name="startButton" Click="LaunchPriconner" Width="130" TabIndex="12"/>
-            <Button Name="applyButton" Content="適用(_A)" Click="RewriteReg_" ToolTip="現在の入力内容をレジストリに書き込みます(Ctrl + S)" Width="75" Margin="15,0,0,0" TabIndex="11"/>
+            <Button Name="applyButton" Content="適用(_A)" Click="RewriteReg_" ToolTip="現在の入力内容をレジストリに書き込みます" Width="75" Margin="15,0,0,0" TabIndex="11"/>
         </StackPanel>
     </StackPanel>
 </Window>

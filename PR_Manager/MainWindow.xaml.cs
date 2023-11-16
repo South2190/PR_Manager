@@ -367,6 +367,13 @@ namespace PR_Manager
                 return false;
             }
 
+            fullScreen = WindowMode.SelectedIndex switch
+            {
+                1 => 1,
+                2 => 0,
+                _ => 3
+            };
+
             // 仮想フルスクリーン時、チェックが入っていた場合ネイティブにする
             allowNative = ((bool)UseNative.IsChecked && fullScreen == 1) ? 1 : 0;
             return true;
@@ -393,14 +400,16 @@ namespace PR_Manager
                     // 現在のプリコネRのウインドウ位置を取得
                     System.Drawing.Point point = default;
                     _ = ClientToScreen(p.MainWindowHandle, ref point);
-                    //cX = point.X;
-                    //cY = point.Y;
+                    int cX = point.X;
+                    int cY = point.Y;
                     // ウインドウサイズを変更
-                    _ = MoveWindow(p.MainWindowHandle, point.X - 8, point.Y - 31, intWidth + 16, intHeight + 39, 1);
-                    //point = default;
-                    //ClientToScreen(p.MainWindowHandle, ref point);
-                    //cX = point.X - cX;
-                    //cY = point.Y - cY;
+                    //_ = MoveWindow(p.MainWindowHandle, point.X - 8, point.Y - 31, intWidth + 16, intHeight + 39, 1);
+                    _ = MoveWindow(p.MainWindowHandle, point.X, point.Y, intWidth + 16, intHeight + 39, 1);
+                    point = default;
+                    ClientToScreen(p.MainWindowHandle, ref point);
+                    cX = point.X - cX;
+                    cY = point.Y - cY;
+                    _ = System.Windows.MessageBox.Show("cX=" + cX + ", cY=" + cY, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
 
                     /*
                      * メモ書き
@@ -409,7 +418,7 @@ namespace PR_Manager
                      * 縦方向はウインドウのタイトルバーを含む(おそらく23px)
                      * システムの拡大率によってこの値は変わってくる
                      * 
-                     * 拡大率の異なる環境で幅を調べる(テストボタン)
+                     * 拡大率の異なる環境でタイトルバーの幅を調べる(テストボタン)
                      */
                 }
             }
@@ -619,7 +628,7 @@ namespace PR_Manager
         /// <summary>
         /// 「横」テキストボックスの内容が変更された場合の処理
         /// </summary>
-        private void FixassW(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void FixassW(object sender, TextChangedEventArgs e)
         {
             if (int.TryParse(WidthBox.Text, out int getVal) && WidthFocus)
             {
@@ -630,7 +639,7 @@ namespace PR_Manager
         /// <summary>
         /// 「縦」テキストボックスの内容が変更された場合の処理
         /// </summary>
-        private void FixassH(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private void FixassH(object sender, TextChangedEventArgs e)
         {
             if (int.TryParse(HeightBox.Text, out int getVal) && HeightFocus)
             {

@@ -170,8 +170,16 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>if not "$(ConfigurationName)"=="Release" goto :eof
+rem App.configファイルのバージョン値取得
+for /f "usebackq" %25%25i in (`powershell -NoProfile -ExecutionPolicy Bypass -command "$NodeName = \"/configuration/applicationSettings/PR_Manager.Properties.Settings/setting/value\"; $XML = [XML](Get-Content $(ProjectDir)App.config); $XML.SelectNodes($NodeName).\"#text\""`) do set CONFIGVALUE=%25%25i
+
+rem InternalSettingsのバージョン値取得
+for /f "usebackq tokens=7" %25%25i in (`findstr ConfigFileVersion $(ProjectDir)Classes\InternalSettings.cs`) do set SETTINGVALUE=%25%25i
+
+if not "%25CONFIGVALUE%25" == "%25SETTINGVALUE:~1,-2%25" (
+ mshta vbscript:execute("msgbox""App.configとInternalSettingsのバージョン設定値が異なります。"" &amp; vbCr &amp; vbCr &amp; ""App.config -&gt; %25CONFIGVALUE%25"" &amp; vbCr &amp; ""InternalSettings -&gt; %25SETTINGVALUE:~1,-2%25"",48,""ビルド前警告"":close"^)
+)</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)"=="Debug" (

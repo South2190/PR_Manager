@@ -3,6 +3,8 @@ using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.Drawing;
+
 //using System.Linq;
 //using System.Management;
 using System.Media;
@@ -41,10 +43,12 @@ namespace PR_Manager
         public readonly Timer timer = new();
 
         // user32.dll関数の定義
+        //[DllImport("user32.dll")]
+        //private static extern bool ClientToScreen(IntPtr hwnd, ref System.Drawing.Point lpPoint);
         [DllImport("user32.dll")]
-        private static extern bool ClientToScreen(IntPtr hwnd, ref System.Drawing.Point lpPoint);
+        private static extern bool GetWindowRect(IntPtr hwnd, out Rectangle lpRect);
         [DllImport("user32.dll")]
-        private static extern int MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, int bRepaint);
+        private static extern int MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
         [DllImport("user32.dll")]
         private static extern int PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
 
@@ -397,6 +401,7 @@ namespace PR_Manager
                 // プリコネRが起動している場合
                 foreach (Process p in Process.GetProcessesByName(InternalSettings.TargetAppName))
                 {
+                    /*
                     // 現在のプリコネRのウインドウ位置を取得
                     System.Drawing.Point point = default;
                     _ = ClientToScreen(p.MainWindowHandle, ref point);
@@ -410,6 +415,14 @@ namespace PR_Manager
                     cX = point.X - cX;
                     cY = point.Y - cY;
                     _ = System.Windows.MessageBox.Show("cX=" + cX + ", cY=" + cY, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
+                    */
+
+                    // 現在のプリコネRのウインドウ位置を取得
+                    _ = GetWindowRect(p.MainWindowHandle, out Rectangle rect);
+
+                    // ウインドウサイズを変更
+                    _ = MoveWindow(p.MainWindowHandle, rect.Left, rect.Top, intWidth, intHeight, true);
+
 
                     /*
                      * メモ書き
@@ -659,9 +672,10 @@ namespace PR_Manager
             Background = Dark;
             MenuBar.Background = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
             */
+            double DpiScale = new Form().CreateGraphics().DpiX / 96;
             double borderWidth = SystemParameters.ResizeFrameVerticalBorderWidth;
             double borderHeight = SystemParameters.ResizeFrameHorizontalBorderHeight;
-            _ = System.Windows.MessageBox.Show("borderWidth=" + borderWidth + ", borderHeight=" + borderHeight, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
+            _ = System.Windows.MessageBox.Show("DpiScale=" + DpiScale + "\nborderWidth=" + borderWidth + "\nborderHeight=" + borderHeight, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
         }
 
         /// <summary>

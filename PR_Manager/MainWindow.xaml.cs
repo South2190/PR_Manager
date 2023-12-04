@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
-
 //using System.Linq;
 //using System.Management;
 using System.Media;
@@ -43,14 +42,12 @@ namespace PR_Manager
         public readonly Timer timer = new();
 
         // user32.dll関数の定義
-        //[DllImport("user32.dll")]
-        //private static extern bool ClientToScreen(IntPtr hwnd, ref System.Drawing.Point lpPoint);
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hwnd, out Rectangle lpRect);
         [DllImport("user32.dll")]
-        private static extern int MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
+        private static extern bool MoveWindow(IntPtr hwnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
         [DllImport("user32.dll")]
-        private static extern int PostMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
+        private static extern bool PostMessageA(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
 
         private bool flg = true;
         public MainWindow()
@@ -401,28 +398,15 @@ namespace PR_Manager
                 // プリコネRが起動している場合
                 foreach (Process p in Process.GetProcessesByName(InternalSettings.TargetAppName))
                 {
-                    /*
-                    // 現在のプリコネRのウインドウ位置を取得
-                    System.Drawing.Point point = default;
-                    _ = ClientToScreen(p.MainWindowHandle, ref point);
-                    int cX = point.X;
-                    int cY = point.Y;
-                    // ウインドウサイズを変更
-                    //_ = MoveWindow(p.MainWindowHandle, point.X - 8, point.Y - 31, intWidth + 16, intHeight + 39, 1);
-                    _ = MoveWindow(p.MainWindowHandle, point.X, point.Y, intWidth + 16, intHeight + 39, 1);
-                    point = default;
-                    ClientToScreen(p.MainWindowHandle, ref point);
-                    cX = point.X - cX;
-                    cY = point.Y - cY;
-                    _ = System.Windows.MessageBox.Show("cX=" + cX + ", cY=" + cY, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
-                    */
-
                     // 現在のプリコネRのウインドウ位置を取得
                     _ = GetWindowRect(p.MainWindowHandle, out Rectangle rect);
 
                     // ウインドウサイズを変更
-                    _ = MoveWindow(p.MainWindowHandle, rect.Left, rect.Top, intWidth, intHeight, true);
+                    _ = MoveWindow(p.MainWindowHandle, rect.Left, rect.Top, intWidth + 16, intHeight + 39, true);
 
+#if DEBUG
+                    _ = System.Windows.MessageBox.Show("rect.Left = " + rect.Left + "\nrect.X = " + rect.X + "\n差:" + (rect.Right - rect.X) + "\nrect.Top = " + rect.Top + "\nrect.Y = " + rect.Y + "\n差:" + (rect.Bottom - rect.Y) + "\nrect.Width = " + rect.Width + "\nrect.Height = " + rect.Height, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
+#endif
 
                     /*
                      * メモ書き
@@ -430,8 +414,6 @@ namespace PR_Manager
                      * ウインドウボーダーは4px、左右両方合わせると8px
                      * 縦方向はウインドウのタイトルバーを含む(おそらく23px)
                      * システムの拡大率によってこの値は変わってくる
-                     * 
-                     * 拡大率の異なる環境でタイトルバーの幅を調べる(テストボタン)
                      */
                 }
             }
@@ -480,7 +462,7 @@ namespace PR_Manager
                     case "SendSignal":
                         foreach (Process p in ps)
                         {
-                            _ = PostMessage(p.MainWindowHandle, WM_CLOSE, (IntPtr)0, (IntPtr)0);
+                            _ = PostMessageA(p.MainWindowHandle, WM_CLOSE, (IntPtr)0, (IntPtr)0);
                         }
                         break;
                     default:
@@ -716,8 +698,8 @@ namespace PR_Manager
         /// </summary>
         private void TextBoxKeyJudge(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            // テンキー含めた数字キー、Tab、Ctrl以外のキーが入力された場合
-            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab && !(System.Windows.Forms.Control.ModifierKeys == Keys.Control))
+            // テンキー含めた数字キー、Tab、Ctrl、Alt以外のキーが入力された場合
+            if ((e.Key < Key.D0 || e.Key > Key.D9) && (e.Key < Key.NumPad0 || e.Key > Key.NumPad9) && e.Key != Key.Tab && !(System.Windows.Forms.Control.ModifierKeys == Keys.Alt) && !(System.Windows.Forms.Control.ModifierKeys == Keys.Control))
             {
                 e.Handled = true;
                 SystemSounds.Beep.Play();

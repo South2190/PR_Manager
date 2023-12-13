@@ -188,17 +188,17 @@ namespace PR_Manager
         /// </summary>
         public void ChangeButton()
         {
-            // プリコネRが起動している場合
+            // プリコネRが起動していない場合
             if (Process.GetProcessesByName(InternalSettings.TargetAppName).Length <= 0)
             {
                 if (!startButton.IsEnabled)
                 {
                     startButton.IsEnabled = true;
                 }
-                startButton.Content = "ゲームを起動";
+                startButton.Content = "ゲームを起動(_R)";
                 startButton.ToolTip = "ゲームを起動します";
             }
-            // プリコネRが起動していない場合、設定に応じて表示と動作を変える
+            // プリコネRが起動している場合、設定に応じて表示と動作を変える
             else
             {
                 switch (Properties.Settings.Default.GameEndButton)
@@ -208,7 +208,7 @@ namespace PR_Manager
                         {
                             startButton.IsEnabled = true;
                         }
-                        startButton.Content = "ゲームを終了";
+                        startButton.Content = "ゲームを終了(_R)";
                         startButton.ToolTip = "ゲームを終了します";
                         break;
                     case "TaskKill":
@@ -216,7 +216,7 @@ namespace PR_Manager
                         {
                             startButton.IsEnabled = true;
                         }
-                        startButton.Content = "ゲームを強制終了";
+                        startButton.Content = "ゲームを強制終了(_R)";
                         startButton.ToolTip = "ゲームを強制終了します";
                         break;
                     case "Disabled":
@@ -225,7 +225,7 @@ namespace PR_Manager
                         {
                             startButton.IsEnabled = false;
                         }
-                        startButton.Content = "ゲームを起動";
+                        startButton.Content = "ゲームを起動(_R)";
                         startButton.ToolTip = "ゲームを起動します";
                         break;
                 }

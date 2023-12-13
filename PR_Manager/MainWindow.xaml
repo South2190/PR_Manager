@@ -63,19 +63,19 @@
                         <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="0" Grid.Row="0"/>
-                    <TextBox Name="WidthBox" MaxLength="5" KeyDown="TextBoxKeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="0"/>
+                    <TextBox Name="WidthBox" MaxLength="5" InputScope="Number" InputMethod.IsInputMethodEnabled="False" KeyDown="TextBoxKeyJudge" TextChanged="FixassW" GotFocus="WidthGotFocus" LostFocus="WidthLostFocus" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="0"/>
                     <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="0"/>
                     <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                    <TextBox Name="HeightBox" MaxLength="5" KeyDown="TextBoxKeyJudge" TextChanged="FixassH" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" InputScope="Number" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="2"/>
+                    <TextBox Name="HeightBox" MaxLength="5" InputScope="Number" InputMethod.IsInputMethodEnabled="False" KeyDown="TextBoxKeyJudge" TextChanged="FixassH" GotFocus="HeightGotFocus" LostFocus="HeightLostFocus" ToolTip="ゲーム画面の解像度(縦)を指定します" TabIndex="4" Grid.Column="1" Grid.Row="2"/>
                     <TextBlock Text="px" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="2"/>
                     <CheckBox Name="UseNative" Content="自動設定" HorizontalAlignment="Right" VerticalAlignment="Center" Checked="UseNativeChecked" Unchecked="UseNativeUnchecked" ToolTip="モニターのサイズに合わせて解像度を自動設定します" TabIndex="6" Grid.Column="3" Grid.Row="0" Grid.RowSpan="3"/>
                 </Grid>
                 <CheckBox Name="AllowFixedass" Content="アスペクト比を固定する" ToolTip="解像度の縦と横の比率を固定します" HorizontalAlignment="Center" Margin="0,15,0,0" TabIndex="7"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Height="20" Margin="0,5,0,0">
                     <TextBlock Text="横" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                    <TextBox Name="AssW" Width="36" MaxLength="4" KeyDown="TextBoxKeyJudge" InputScope="Number" ToolTip="アスペクト比(横)を入力します" TabIndex="8"/>
+                    <TextBox Name="AssW" Width="36" MaxLength="4" InputScope="Number" InputMethod.IsInputMethodEnabled="False" KeyDown="TextBoxKeyJudge" ToolTip="アスペクト比(横)を入力します" TabIndex="8"/>
                     <TextBlock Text=":" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
-                    <TextBox Name="AssH" Width="36" MaxLength="4" KeyDown="TextBoxKeyJudge" InputScope="Number" ToolTip="アスペクト比(縦)を入力します" TabIndex="9"/>
+                    <TextBox Name="AssH" Width="36" MaxLength="4" InputScope="Number" InputMethod.IsInputMethodEnabled="False" KeyDown="TextBoxKeyJudge" ToolTip="アスペクト比(縦)を入力します" TabIndex="9"/>
                     <TextBlock Text="縦" VerticalAlignment="Center" TextAlignment="Center" Width="20"/>
                 </StackPanel>
             </StackPanel>

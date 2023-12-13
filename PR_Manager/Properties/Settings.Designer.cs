@@ -25,7 +25,7 @@ namespace PR_Manager.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.2.0-rc2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.1.0")]
         public string ConfigFileVersion {
             get {
                 return ((string)(this["ConfigFileVersion"]));

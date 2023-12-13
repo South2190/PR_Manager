@@ -14,11 +14,12 @@ namespace PR_Manager.Classes
         public static readonly string AppName = "PR_Manager";
 #endif
         // バージョン
-        public static readonly string AppVersion = "1.2.0-rc2";
+        public static readonly string AppVersion = "1.2.0";
+        // ***アセンブリ情報の変更を忘れずに！***
 
         // configファイル設定
         public static readonly string ConfigFileName = "PR_Manager.exe.config";
-        public static readonly string ConfigFileVersion = "1.2.0-rc2";
+        public static readonly string ConfigFileVersion = "1.1.0";
 
         // ゲーム起動URI
         public static readonly string GameStartupUri        = ConfigurationManager.AppSettings["GameStartupUri"]        ?? "dmmgameplayer://play/GCL/priconner/cl/win";

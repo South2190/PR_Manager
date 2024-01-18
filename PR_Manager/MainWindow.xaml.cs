@@ -184,55 +184,6 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// プリコネRのプロセスの存在有無別でボタンの表示と動作を切り替えます
-        /// </summary>
-        public void ChangeButton()
-        {
-            // プリコネRが起動していない場合
-            if (Process.GetProcessesByName(InternalSettings.TargetAppName).Length <= 0)
-            {
-                if (!startButton.IsEnabled)
-                {
-                    startButton.IsEnabled = true;
-                }
-                startButton.Content = "ゲームを起動(_R)";
-                startButton.ToolTip = "ゲームを起動します";
-            }
-            // プリコネRが起動している場合、設定に応じて表示と動作を変える
-            else
-            {
-                switch (Properties.Settings.Default.GameEndButton)
-                {
-                    case "SendSignal":
-                        if (!startButton.IsEnabled)
-                        {
-                            startButton.IsEnabled = true;
-                        }
-                        startButton.Content = "ゲームを終了(_R)";
-                        startButton.ToolTip = "ゲームを終了します";
-                        break;
-                    case "TaskKill":
-                        if (!startButton.IsEnabled)
-                        {
-                            startButton.IsEnabled = true;
-                        }
-                        startButton.Content = "ゲームを強制終了(_R)";
-                        startButton.ToolTip = "ゲームを強制終了します";
-                        break;
-                    case "Disabled":
-                    default:
-                        if (startButton.IsEnabled)
-                        {
-                            startButton.IsEnabled = false;
-                        }
-                        startButton.Content = "ゲームを起動(_R)";
-                        startButton.ToolTip = "ゲームを起動します";
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
         /// 前回終了時の入力内容をフォームに反映します
         /// </summary>
         private void LoadLasttimeEnded()
@@ -471,6 +422,7 @@ namespace PR_Manager
             }
         }
 
+        #region *** アスペクト比の自動計算の制御 ***
         /// <summary>
         /// 一方の解像度が入力された時、指定されたアスペクト比に応じてもう一方の解像度を計算し自動入力します
         /// </summary>
@@ -520,8 +472,29 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// 各関数へのトリガー
+        /// 「横」テキストボックスの内容が変更された場合の処理
         /// </summary>
+        private void FixassW(object sender, TextChangedEventArgs e)
+        {
+            if (int.TryParse(WidthBox.Text, out int getVal) && WidthFocus)
+            {
+                FixedAspectRatio('W', getVal);
+            }
+        }
+
+        /// <summary>
+        /// 「縦」テキストボックスの内容が変更された場合の処理
+        /// </summary>
+        private void FixassH(object sender, TextChangedEventArgs e)
+        {
+            if (int.TryParse(HeightBox.Text, out int getVal) && HeightFocus)
+            {
+                FixedAspectRatio('H', getVal);
+            }
+        }
+        #endregion
+
+        #region *** 各関数の呼び出し(関連付け) ***
         private void LoadRegistry_(object sender, RoutedEventArgs e)
         {
             LoadRegistry();
@@ -538,7 +511,9 @@ namespace PR_Manager
         {
             RewriteReg();
         }
+        #endregion
 
+        #region *** ウインドウの呼び出し ***
         /// <summary>
         /// オプションウインドウを表示します
         /// </summary>
@@ -569,6 +544,57 @@ namespace PR_Manager
         private void ThisExit(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+        #endregion
+
+        #region *** XAMLコントロールの制御 ***
+        /// <summary>
+        /// プリコネRのプロセスの存在有無別でボタンの表示と動作を切り替えます
+        /// </summary>
+        public void ChangeButton()
+        {
+            // プリコネRが起動していない場合
+            if (Process.GetProcessesByName(InternalSettings.TargetAppName).Length <= 0)
+            {
+                if (!startButton.IsEnabled)
+                {
+                    startButton.IsEnabled = true;
+                }
+                startButton.Content = "ゲームを起動(_R)";
+                startButton.ToolTip = "ゲームを起動します";
+            }
+            // プリコネRが起動している場合、設定に応じて表示と動作を変える
+            else
+            {
+                switch (Properties.Settings.Default.GameEndButton)
+                {
+                    case "SendSignal":
+                        if (!startButton.IsEnabled)
+                        {
+                            startButton.IsEnabled = true;
+                        }
+                        startButton.Content = "ゲームを終了(_R)";
+                        startButton.ToolTip = "ゲームを終了します";
+                        break;
+                    case "TaskKill":
+                        if (!startButton.IsEnabled)
+                        {
+                            startButton.IsEnabled = true;
+                        }
+                        startButton.Content = "ゲームを強制終了(_R)";
+                        startButton.ToolTip = "ゲームを強制終了します";
+                        break;
+                    case "Disabled":
+                    default:
+                        if (startButton.IsEnabled)
+                        {
+                            startButton.IsEnabled = false;
+                        }
+                        startButton.Content = "ゲームを起動(_R)";
+                        startButton.ToolTip = "ゲームを起動します";
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -604,7 +630,7 @@ namespace PR_Manager
         }
 
         /// <summary>
-        /// Nativeチェックボックスのチェック状況に応じた解像度テキストボックスの有効・無効の切替
+        /// Nativeチェックボックスのチェック状況に応じた解像度テキストボックスの有効・無効の切り替え
         /// </summary>
         private void UseNativeChecked(object sender, RoutedEventArgs e)
         {
@@ -619,28 +645,7 @@ namespace PR_Manager
             WidthBox.IsEnabled = true;
             HeightBox.IsEnabled = true;
         }
-
-        /// <summary>
-        /// 「横」テキストボックスの内容が変更された場合の処理
-        /// </summary>
-        private void FixassW(object sender, TextChangedEventArgs e)
-        {
-            if (int.TryParse(WidthBox.Text, out int getVal) && WidthFocus)
-            {
-                FixedAspectRatio('W', getVal);
-            }
-        }
-
-        /// <summary>
-        /// 「縦」テキストボックスの内容が変更された場合の処理
-        /// </summary>
-        private void FixassH(object sender, TextChangedEventArgs e)
-        {
-            if (int.TryParse(HeightBox.Text, out int getVal) && HeightFocus)
-            {
-                FixedAspectRatio('H', getVal);
-            }
-        }
+        #endregion
 
         /// <summary>
         /// テストしたいプログラムや機能がある場合この関数内に記述します
@@ -660,6 +665,7 @@ namespace PR_Manager
             _ = System.Windows.MessageBox.Show("DpiScale=" + DpiScale + "\nborderWidth=" + borderWidth + "\nborderHeight=" + borderHeight, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.None);
         }
 
+        #region *** 各Focus変数の制御 ***
         /// <summary>
         /// 「縦」と「横」テキストボックスのフォーカス状況を格納します
         /// </summary>
@@ -679,6 +685,7 @@ namespace PR_Manager
         {
             HeightFocus = false;
         }
+        #endregion
 
         /// <summary>
         /// 任意のキーが押下された際に呼び出される関数です

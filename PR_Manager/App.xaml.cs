@@ -1,5 +1,4 @@
-﻿//using Microsoft.Win32;
-using PR_Manager.Classes;
+﻿using PR_Manager.Classes;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -16,13 +15,9 @@ namespace PR_Manager
     /// </summary>
     public partial class App : Application
     {
-        [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
-        public static extern int AttachConsole(int processId);
-
         /// <summary>
         /// ツール起動時のイベント
         /// </summary>
-        [STAThread]
         protected override void OnStartup(StartupEventArgs e)
         {
             // カレントディレクトリの設定
@@ -52,6 +47,7 @@ namespace PR_Manager
                         break;
                     // user.configの削除
                     case "--delete-userconfig":
+                    // 現在のuser.configのみ削除
                     case "--delete-userconfig-current":
                         if (i == 0) {
                             string UserConfigPath = e.Args[i] switch
@@ -63,11 +59,11 @@ namespace PR_Manager
                             if (Directory.Exists(UserConfigPath))
                             {
                                 Directory.Delete(UserConfigPath, true);
-                                ShowMessage("設定ファイルを削除しました。", MessageBoxImage.Asterisk);
+                                _ = MessageBox.Show("設定ファイルを削除しました。", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
                             }
                             else
                             {
-                                ShowMessage("削除できる設定ファイルが見つかりませんでした。", MessageBoxImage.Error);
+                                _ = MessageBox.Show("削除できる設定ファイルが見つかりませんでした。", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                             Mode = 0;
                             AllowOtherArgs = false;
@@ -77,7 +73,6 @@ namespace PR_Manager
                             InvalidArgs = true;
                         }
                         break;
-                    // 現在のuser.configのみ削除
                     // バージョン情報を表示
                     case "-v":
                     case "--version":
@@ -97,7 +92,7 @@ namespace PR_Manager
                     case "-h":
                     case "--help":
                         if (i == 0) {
-                            ShowMessage(PR_Manager.Properties.Resources.HelpArgs, MessageBoxImage.Asterisk);
+                            _ = MessageBox.Show(PR_Manager.Properties.Resources.HelpArgs, InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Asterisk);
                             Mode = 0;
                             AllowOtherArgs = false;
                         }
@@ -121,7 +116,7 @@ namespace PR_Manager
             // 無効な引数が入力された場合メッセージを表示する
             if (InvalidArgs)
             {
-                ShowMessage("無効な引数が入力されたか、引数の使い方が誤っています。\n\"--help\"もしくは\"-h\"でヘルプを表示できます。", MessageBoxImage.Error);
+                _ = MessageBox.Show("無効な引数が入力されたか、引数の使い方が誤っています。\n\"--help\"もしくは\"-h\"でヘルプを表示できます。", InternalSettings.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             // モード別の挙動
@@ -156,22 +151,6 @@ namespace PR_Manager
             {
                 // 終了
                 Shutdown();
-            }
-        }
-
-        /// <summary>
-        /// メッセージを表示します。
-        /// コンソールが利用可能な場合はコンソールに出力、そうでなければメッセージボックスで表示します。
-        /// </summary>
-        public static void ShowMessage(string message = null, MessageBoxImage messageboximage = MessageBoxImage.None)
-        {
-            if (AttachConsole(-1) == 0)
-            {
-                _ = MessageBox.Show(message, InternalSettings.AppName, MessageBoxButton.OK, messageboximage);
-            }
-            else
-            {
-                Console.WriteLine(message);
             }
         }
 

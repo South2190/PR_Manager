@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         FontFamily="Meiryo"
         Title="バージョン情報"
-        Height="220" Width="290"
+        Height="241" Width="290"
         ResizeMode="NoResize"
         UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display">
@@ -20,7 +20,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="23"/>
                 <RowDefinition Height="23"/>
-                <RowDefinition Height="32"/>
+                <RowDefinition Height="23"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
             <Grid.Resources>
                 <Style TargetType="{x:Type TextBlock}">
@@ -29,9 +30,11 @@
             </Grid.Resources>
             <TextBlock Text="バージョン" Grid.Column="0" Grid.Row="0"/>
             <TextBlock Name="Version" Grid.Column="1" Grid.Row="0"/>
-            <TextBlock Text="製作者" Grid.Column="0" Grid.Row="1"/>
-            <TextBlock Text="SHELL" Grid.Column="1" Grid.Row="1"/>
-            <TextBlock VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="2">
+            <TextBlock Text="リリース日" Grid.Column="0" Grid.Row="1"/>
+            <TextBlock Name="Date" Grid.Column="1" Grid.Row="1"/>
+            <TextBlock Text="製作者" Grid.Column="0" Grid.Row="2"/>
+            <TextBlock Text="SHELL" Grid.Column="1" Grid.Row="2"/>
+            <TextBlock VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="3">
                 <Hyperlink NavigateUri="https://github.com/South2190/PR_Manager" RequestNavigate="Hyperlink_RequestNavigate">GitHub</Hyperlink>
             </TextBlock>
         </Grid>

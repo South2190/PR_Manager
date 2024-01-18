@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace PR_Manager.Classes
 {
@@ -16,6 +17,9 @@ namespace PR_Manager.Classes
         // バージョン
         public static readonly string AppVersion = "1.2.0";
         // ***アセンブリ情報の変更を忘れずに！***
+
+        // リリース日付
+        public static readonly DateTime ReleaseDate = new(2024, 1, 18);
 
         // configファイル設定
         public static readonly string ConfigFileName = "PR_Manager.exe.config";

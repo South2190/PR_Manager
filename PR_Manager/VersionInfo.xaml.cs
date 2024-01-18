@@ -18,6 +18,7 @@ namespace PR_Manager
             InitializeComponent();
             ThisName.Text = InternalSettings.AppName;
             Version.Text = InternalSettings.AppVersion;
+            Date.Text = InternalSettings.ReleaseDate.ToString("yyyy/MM/dd");
             _ = OKButton.Focus();
         }
 
